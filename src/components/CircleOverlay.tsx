@@ -1,0 +1,129 @@
+import React, { useMemo } from 'react';
+import rough from 'roughjs';
+
+/**
+ * 동그라미(하이라이트)의 시각적 스타일과 애니메이션 방향을 제어하는 옵션들입니다.
+ */
+export interface CircleAnimationOptions {
+    stroke?: string;         // 선의 색상
+    strokeWidth?: number;    // 선의 두께
+    roughness?: number;      // 선의 거칠기
+    bowing?: number;         // 선이 휘어지는 정도
+    opacity?: number;        // 선의 불투명도
+    mixBlendMode?: React.CSSProperties['mixBlendMode']; // 배경과의 혼합 방식 (multiply 등)
+
+    // 고급 제어 옵션
+    rotation?: number;       // 시작 위치 회전 (도 단위)
+    isClockwise?: boolean;   // 그리기 방향 (기본값: true)
+
+    // 크기 제어 옵션 (학습포인트: 텍스트 박스 대비 배율)
+    widthScale?: number;     // 가로 폭 배율 (기본값: 1.05)
+    heightScale?: number;    // 세로 폭 배율 (기본값: 1.8)
+
+    // 구간 제어 옵션 (학습포인트: 0 ~ 1.0 비율)
+    startPoint?: number;     // 전체 경로 중 그리기 시작할 지점 (0이면 처음)
+    endPoint?: number;       // 전체 경로 중 그리기가 끝날 지점 (1이면 끝)
+}
+
+interface CircleOverlayProps {
+    centerX: number;        // 화면 상의 중심 X 좌표 (픽셀)
+    centerY: number;        // 화면 상의 중심 Y 좌표 (픽셀)
+    width: number;          // 타원의 가로 폭 (픽셀)
+    height: number;         // 타원의 세로 폭 (픽셀)
+    drawProgress: number;   // 그리기 진행률 (0: 시작 안 함, 1: 완료)
+    options?: CircleAnimationOptions; // 상세 스타일 옵션
+}
+
+export const CircleOverlay: React.FC<CircleOverlayProps> = ({
+    centerX,
+    centerY,
+    width,
+    height,
+    drawProgress,
+    options = {}
+}) => {
+    // 옵션들이 넘어오지 않았을 때 사용할 기본값들을 설정합니다 (비구조화 할당과 기본값 설정)
+    const {
+        stroke = "#FF0033",
+        strokeWidth = 6,
+        roughness = 1.5,
+        bowing = 1.2,
+        opacity = 0.85,
+        mixBlendMode = "multiply",
+        rotation = 180,
+        isClockwise = true,
+        startPoint = 0.0,
+        endPoint = 1.1,
+        widthScale = 1.05,
+        heightScale = 1.8,
+    } = options;
+
+    const svgPathData = useMemo(() => {
+        const generator = rough.generator();
+        // [학습 포인트] 배율(Scale) 적용:
+        // 전달받은 width와 height에 사용자가 설정한 배율을 곱하여 최종 크기를 결정합니다.
+        // 이를 통해 하이라이트가 텍스트 영역보다 얼마나 더 크게 그려질지 세밀하게 조정할 수 있습니다.
+        const scaledWidth = width * widthScale;
+        const scaledHeight = height * heightScale;
+
+        // 원형(ellipse) 모양의 거친 선 데이터를 생성합니다.
+        const customShape = generator.ellipse(
+            centerX, centerY, scaledWidth, scaledHeight,
+            {
+                roughness,
+                bowing,
+                disableMultiStroke: true, // 여러 번 덧칠하지 않고 한 줄로만 그리도록 설정
+            }
+        );
+        // 생성된 모양을 SVG 경로 데이터(d 속성용 문자열)로 변환합니다.
+        const paths = generator.toPaths(customShape);
+        return paths.length > 0 ? paths[0].d : '';
+    }, [centerX, centerY, width, height, widthScale, heightScale, roughness, bowing]);
+
+    /**
+     * [학습 포인트] 시작점 점(Dot) 예외 처리:
+     * 애니메이션이 시작되기 전(drawProgress === 0)에는 아예 하이라이트를 그리지 않습니다.
+     * 이렇게 하면 SVG 끝점 처리(linecap: round)로 인해 생기는 미세한 잔상을 완벽히 차단할 수 있습니다.
+     */
+    if (drawProgress <= 0) return null;
+
+    /**
+     * [학습 포인트] *** 점(Dot) 현상 해결 및 그리기 구간 계산 ***
+     * 
+     * 이전 방식(`0 ${startGap} ${drawingLine} 1000`)의 문제점:
+     * 맨 앞의 `0`은 길이가 0인 실선을 의미하는데, `stroke-linecap: round`가 적용되면 
+     * 0 길이의 선이라도 양쪽 끝을 둥글게(Cap) 처리하면서 원형의 점이 생겨버립니다.
+     * 
+     * 패턴 공식: [0] [시작공백] [실제그려지는선] [나머지공백]
+     * 1. 0: 처음부터 실선이 시작되는 것을 방지하기 위해 0길이의 실선을 둡니다.
+     * 2. startPoint * 100: 경로의 0부터 시작점까지를 '공백'으로 채워 선을 숨깁니다.
+     * 3. drawProgress * (endPoint - startPoint) * 100: 시작점부터 진행률에 따라 자라나는 '실선'을 만듭니다.
+     * 4. 1000: 나머지 경로를 모두 '공백'으로 처리하여 그 이후에는 선이 안 보이게 합니다.
+     */
+    const drawingLine = drawProgress * (endPoint - startPoint) * 100;
+    const currentDashArray = `${drawingLine} 1000`;
+    const currentOffset = -(startPoint * 100);
+
+    const transformStyle: React.CSSProperties = {
+        transformOrigin: `${centerX}px ${centerY}px`,
+        transform: `rotate(${rotation}deg) scaleX(${isClockwise ? 1 : -1})`,
+        mixBlendMode,
+        opacity
+    };
+
+    return (
+        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10, pointerEvents: 'none' }}>
+            {svgPathData && (
+                <path
+                    d={svgPathData} fill="none"
+                    stroke={stroke} strokeLinecap="round" strokeLinejoin="round"
+                    strokeWidth={strokeWidth}
+                    pathLength="100"
+                    strokeDasharray={currentDashArray}
+                    strokeDashoffset={currentOffset}
+                    style={transformStyle}
+                />
+            )}
+        </svg>
+    );
+};
