@@ -1,14 +1,14 @@
 import React from 'react';
 import { Composition, staticFile } from 'remotion';
-import { CircleOnCard, calculateCircleOnCardMetadata, PieChartConfig } from './components/Theme';
-import { ChartAnimation, ChartAnimationProps } from './components/ChartAnimation';
+import { CircleOnCard, calculateCircleOnCardMetadata } from './components/Theme';
+import { ChartAnimation } from './components/ChartAnimation';
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
         id="ChartAnimation"
-        component={ChartAnimation}
+        component={ChartAnimation as any}
         durationInFrames={300}
         fps={30}
         width={1920}
@@ -56,16 +56,6 @@ export const RemotionRoot: React.FC = () => {
             { start: 13.0, end: 15.0, target: { type: 'circle', x1: 205, y1: 130, x2: 364, y2: 145 }, scale: 60, easing: 'smooth', draw: true },
             { start: 16.0, end: 18.0, target: { type: 'pen', x1: 359, y1: 172, x2: 600, y2: 185 }, scale: 60, easing: 'smooth', draw: true },
           ],
-          pieChartConfig: {
-            startTime: 8.0,
-            drawDuration: 1.5,
-            size: 600,
-            data: [
-              { label: "Democrats",   value: 49, color: "#3498db", patternImage: staticFile("blue-pattern.png") },
-              { label: "Republicans", value: 49, color: "#e74c3c", patternImage: staticFile("red-pattern.png") },
-              { label: "Others",      value: 2,  color: "#bdc3c7", patternImage: staticFile("gray-pattern.png") },
-            ],
-          } satisfies PieChartConfig,
         }}
       />
     </>

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import {
     AbsoluteFill,
     interpolate,
-    Sequence,
     useCurrentFrame,
     useVideoConfig,
     staticFile,
@@ -12,7 +11,6 @@ import { NoiseOverlay } from './NoiseOverlay';
 import { CameraLayer, CameraKeyframe } from './CameraLayer';
 import { CircleOverlay, CircleAnimationOptions } from './CircleOverlay';
 import { PenHighlight } from './PenHighlight';
-import { PieChart, ChartSlice } from './PieChart';
 import { CalculateMetadataFunction } from 'remotion';
 
 // ==========================================
@@ -58,16 +56,6 @@ export interface TimelineScene {
 }
 
 /**
- * 파이차트 오버레이의 설정값입니다.
- */
-export interface PieChartConfig {
-    data: ChartSlice[];       // 차트 슬라이스 데이터
-    size?: number;            // 차트 크기(px), 기본값 600
-    startTime: number;        // 차트가 등장하기 시작하는 시간 (초)
-    drawDuration?: number;    // 그리기 애니메이션 지속 시간 (초), 기본값 1.5
-}
-
-/**
  * 컴포넌트 전체가 외부로부터 주입받을 수 있는 모든 설정값들입니다.
  */
 export interface DataDrivenTemplateProps {
@@ -81,74 +69,10 @@ export interface DataDrivenTemplateProps {
     scenes?: TimelineScene[];          // [New] 통합 타임라인 시나리오
     circleOptions?: CircleAnimationOptions; // [변경] 하이라이트의 공통 기본 스타일 옵션
     noisePeakRatio?: number;          // 카메라 워킹 중 노이즈가 최대 강도를 유지하는 비율 (0 ~ 1, 기본값 0.6)
-    pieChartConfig?: PieChartConfig;  // [Optional] 파이차트 오버레이 설정
 }
 
 // 기본 이미지 비율 (바뀔 수 있으므로 상수로 선언)
 const DEFAULT_ASPECT_RATIO = 1024 / 410;
-
-// ==========================================
-// PieChartSequenceItem: 파이차트를 Sequence 내부에서 독립적으로 렌더링하는 컴포넌트
-// Sequence 시작점(frame=0)부터 drawDurationFrames까지 drawProgress 0→1로 그립니다.
-// ==========================================
-interface PieChartSequenceItemProps {
-    data: ChartSlice[];
-    size: number;
-    drawDurationFrames: number;
-}
-
-const PieChartSequenceItem: React.FC<PieChartSequenceItemProps> = ({ data, size, drawDurationFrames }) => {
-    const frame = useCurrentFrame();
-    const drawProgress = interpolate(frame, [0, drawDurationFrames], [0, 1], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-    });
-    return <PieChart data={data} size={size} drawProgress={drawProgress} />;
-};
-
-// ==========================================
-// HighlightSequenceItem: 각 하이라이트를 Sequence 내부에서 독립적으로 렌더링하는 컴포넌트
-// CircleOnCard 함수 외부에 정의하여 매 렌더마다 unmount/remount되지 않도록 합니다.
-// ==========================================
-interface HighlightSequenceItemProps {
-    highlightConfig: HighlightConfig;
-    target: { x: number; y: number; size: { width: number; height: number } };
-    durationInFrames: number;
-    globalCircleOptions: CircleAnimationOptions;
-}
-
-const HighlightSequenceItem: React.FC<HighlightSequenceItemProps> = ({
-    highlightConfig: h,
-    target: hTarget,
-    durationInFrames,
-    globalCircleOptions: circleOptions,
-}) => {
-    const frame = useCurrentFrame(); // Sequence 시작점이 0 (전역 프레임과 무관)
-    const drawProgress = interpolate(frame, [0, durationInFrames], [0, 1], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-    });
-
-    return h.type === 'pen' ? (
-        <PenHighlight
-            centerX={hTarget.x}
-            centerY={hTarget.y}
-            width={hTarget.size.width}
-            height={hTarget.size.height}
-            drawProgress={drawProgress}
-            options={{ ...circleOptions, ...h.options }}
-        />
-    ) : (
-        <CircleOverlay
-            centerX={hTarget.x}
-            centerY={hTarget.y}
-            width={hTarget.size.width}
-            height={hTarget.size.height}
-            drawProgress={drawProgress}
-            options={{ ...circleOptions, ...h.options }}
-        />
-    );
-};
 
 // ==========================================
 // 2. 컴포넌트 선언 및 로직 구현
@@ -185,7 +109,6 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = ({
     scenes,
     baseWidth,
     baseHeight,
-    pieChartConfig,
 }) => {
     const frame = useCurrentFrame();
     const { fps, width, height } = useVideoConfig(); // 비디오 설정(너비, 높이 등) 가져오기
@@ -458,27 +381,42 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = ({
                     }} />
 
                     {/* [핵심] 여러 개의 하이라이트가 순차적/개별적으로 그려지는 오버레이들 */}
-                    {/* 각 하이라이트를 독립된 Sequence로 감싸 자체 프레임 카운터(0~)를 갖도록 합니다. */}
                     {finalHighlights.map((h, i) => {
-                        if (h.drawStartTime === undefined) return null;
                         const hTarget = targets.highlights[i];
-                        const drawStartFrame = Math.round(h.drawStartTime * fps);
-                        const durationInFrames = Math.max(1, Math.round((h.drawDuration ?? 1) * fps));
+                        const { drawStartTime = 0, drawDuration = 1 } = h;
 
-                        return (
-                            <Sequence
+                        // [학습 포인트] 안전한 애니메이션 진행률 계산:
+                        // drawStartTime이 없는 경우(undefined), interpolate가 크래시되지 않도록 
+                        // 매우 큰 값을 기본값으로 주어 애니메이션이 영원히 시작되지 않게 처리합니다.
+                        const startTime = drawStartTime ?? 999999;
+                        const progress = interpolate(
+                            sec,
+                            [startTime, startTime + drawDuration],
+                            [0, 1],
+                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                        );
+
+
+                        return h.type === 'pen' ? (
+                            <PenHighlight
                                 key={i}
-                                from={drawStartFrame}
-                                durationInFrames={durationInFrames}
-                                layout="none"
-                            >
-                                <HighlightSequenceItem
-                                    highlightConfig={h}
-                                    target={hTarget}
-                                    durationInFrames={durationInFrames}
-                                    globalCircleOptions={circleOptions}
-                                />
-                            </Sequence>
+                                centerX={hTarget.x}
+                                centerY={hTarget.y}
+                                width={hTarget.size.width}
+                                height={hTarget.size.height}
+                                drawProgress={progress}
+                                options={{ ...circleOptions, ...h.options }}
+                            />
+                        ) : (
+                            <CircleOverlay
+                                key={i}
+                                centerX={hTarget.x}
+                                centerY={hTarget.y}
+                                width={hTarget.size.width}
+                                height={hTarget.size.height}
+                                drawProgress={progress}
+                                options={{ ...circleOptions, ...h.options }}
+                            />
                         );
                     })}
                 </CameraLayer>
@@ -492,25 +430,6 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = ({
                 blendMode="multiply"
                 zIndex={40}
             />
-
-            {/* [Optional] 파이차트 오버레이: CameraLayer 바깥에 배치하여 카메라 움직임과 무관하게 고정 */}
-            {pieChartConfig && (
-                <Sequence
-                    from={Math.round(pieChartConfig.startTime * fps)}
-                    layout="none"
-                >
-                    <AbsoluteFill style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        zIndex: 45, pointerEvents: 'none',
-                    }}>
-                        <PieChartSequenceItem
-                            data={pieChartConfig.data}
-                            size={pieChartConfig.size ?? 600}
-                            drawDurationFrames={Math.max(1, Math.round((pieChartConfig.drawDuration ?? 1.5) * fps))}
-                        />
-                    </AbsoluteFill>
-                </Sequence>
-            )}
 
             {/* 화면 가장자리를 어둡게 하여 몰입감을 높여주는 비네팅 효과 */}
             <AbsoluteFill style={{

@@ -4,7 +4,7 @@ import { interpolate } from "remotion";
 /**
  * 차트 슬라이스 한 조각의 상세 데이터를 정의합니다.
  */
-export interface ChartSlice {
+interface ChartSlice {
   label: string;
   value: number; // 0 ~ 100 사이의 퍼센트
   color: string;
