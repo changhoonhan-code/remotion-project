@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import rough from 'roughjs';
+import { interpolate, Easing, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { CircleAnimationOptions } from './CircleOverlay';
 
 interface PenHighlightProps {
@@ -8,14 +8,17 @@ interface PenHighlightProps {
     width: number;          // 형광펜의 가로 폭 (픽셀)
     height: number;         // 형광펜의 세로 폭 (픽셀)
     drawProgress: number;   // 그리기 진행률 (0: 시작 안 함, 1: 완료)
+    startTime?: number;     // 긋기 시작 시간 (초)
+    drawDuration?: number;  // 긋기 지속 시간 (초)
     options?: CircleAnimationOptions; 
 }
 
 /**
- * [학습 포인트] 가장자리만 불규칙한 PenHighlight (v5):
- * 1. 내부를 'solid'하게 채워 텍스트 가독성을 최적으로 유지합니다.
- * 2. Rough.js의 높은 roughness 수치를 적용하여 테두리(가장자리)만 울퉁불퉁하게 표현합니다.
- * 3. 별도의 외곽선(stroke) 없이 채우기 영역의 경계 자체가 불규칙하게 보이도록 설계했습니다.
+ * [학습 포인트] 잉크 물성을 완벽 재현한 PenHighlight (v6):
+ * 1. 블렌딩 모드: mix-blend-mode="multiply"와 높은 투명도를 통해 잉크가 종이에 스며든 효과.
+ * 2. 끝마무리: strokeLinecap="round"와 SVG 거칠기 필터로 펜 끝이 뭉개진 자연스러운 느낌 구현.
+ * 3. 잉크 맺힘(Ink Pooling): 끝나는 지점에 맺히는 원형 그라데이션으로 현실적인 마커 디테일 추가.
+ * 4. 불규칙한 힘: stroke-width에 사인함수 노이즈를 주어 두께가 미세하게 울렁거리게 표현합니다.
  */
 export const PenHighlight: React.FC<PenHighlightProps> = ({
     centerX,
@@ -23,67 +26,128 @@ export const PenHighlight: React.FC<PenHighlightProps> = ({
     width,
     height,
     drawProgress,
+    startTime,
+    drawDuration,
     options = {}
 }) => {
     const {
-        stroke = "#F4FF40",   // 선명한 형광 노란색
-        roughness = 2.8,      // 가장자리의 불규칙성을 위해 높게 설정 (피드백 반영)
-        bowing = 2.0,         // 직선이 아닌 약간 휘어진 느낌
-        opacity = 0.45,       // 텍스트 가독성을 위한 적절한 투명도
+        stroke = "#F4FF40",
+        opacity = 0.85,
         mixBlendMode = "multiply",
         widthScale = 1.05,
         heightScale = 1.0,
     } = options;
 
-    const { fillPaths } = useMemo(() => {
-        const generator = rough.generator();
-        const scaledWidth = width * widthScale;
-        const scaledHeight = height * heightScale;
-        
-        const x = centerX - scaledWidth / 2;
-        const y = centerY - scaledHeight / 2;
+    const frame = useCurrentFrame();
+    const { fps } = useVideoConfig();
 
-        // [핵심] solid 스타일을 사용하여 내부는 꽉 채우고, roughness로 가장자리만 왜곡합니다.
-        const customShape = generator.rectangle(x, y, scaledWidth, scaledHeight, {
-            fill: stroke,
-            fillStyle: 'solid',
-            roughness,
-            bowing,
-            stroke: 'none',   // 테두리 실선은 제거하여 더 자연스러운 번짐 효과 유도
-        });
+    const startFrame = Math.round(startTime! * fps) || 0;
+    const durationFrames = Math.round(drawDuration! * fps) || 30;
+    const relativeFrame = frame - startFrame;
 
-        const paths = generator.toPaths(customShape);
-        return {
-            fillPaths: paths.map(p => p.d)
-        };
-    }, [centerX, centerY, width, height, widthScale, heightScale, stroke, roughness, bowing]);
+    const filterId = useMemo(() => `wet-ink-${Math.random().toString(36).substring(2, 9)}`, []);
+    const gradId = useMemo(() => `ink-pool-${Math.random().toString(36).substring(2, 9)}`, []);
 
-    // [핵심] 순차적 긋기 효과를 위한 ClipPath 전용 고유 ID 생성 (Hook 규칙에 따라 상단에 위치)
-    const clipPathId = useMemo(() => `highlighter-clip-v5-${Math.random().toString(36).substr(2, 9)}`, []);
+    if (relativeFrame < 0) return null;
 
-    if (drawProgress <= 0) return null;
+    // [핵심 1] 오버슈트(Overshoot)의 미학: spring 엔진 적용
+    // 살짝 더 나갔다가 0.1초만에 멈추는 손맛 찰랑거림 구현 (stiffness: 50, damping: 10)
+    const springProgress = spring({
+        fps,
+        frame: relativeFrame,
+        config: {
+            stiffness: 50,
+            damping: 10,
+        },
+        durationInFrames: durationFrames > 10 ? durationFrames : undefined,
+    });
 
     const scaledWidth = width * widthScale;
-    const clipWidth = drawProgress * scaledWidth;
-    const clipStartX = centerX - scaledWidth / 2;
+    const scaledHeight = height * heightScale;
+    
+    // 둥근 캡(round)으로 인해 양옆으로 튀어나가는 선 두께를 고려하여 처음부터 정확히 시작/끝나게 보정
+    const capOffset = scaledHeight / 2;
+    const startX = centerX - scaledWidth / 2 + capOffset;
+    const targetEndX = centerX + scaledWidth / 2 - capOffset;
+    const pathLength = Math.max(0.1, targetEndX - startX);
+
+    // SVG 오버슈트를 잘리지 않고 제대로 표현하기 위해, 캔버스의 Path 길이를 미리 길게(1.3배) 열어둡니다.
+    const physicalEndX = startX + pathLength * 1.3;
+
+    // [핵심 2] 잉크가 번지는 느낌을 위해 stroke-width 에도 Easing 적용
+    // 초반 가속이 빠르고 끝에서 멈칫하는 Easing.out(Easing.quad) 적용
+    const baseDynamicWidth = interpolate(
+        relativeFrame,
+        [0, durationFrames * 0.2, durationFrames],
+        [scaledHeight * 0.7, scaledHeight * 1.2, scaledHeight],
+        {
+            easing: Easing.out(Easing.quad),
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp'
+        }
+    );
+
+    // 불규칙한 두께: 사람이 그을 때 힘이 미세하게 흔들리는 시뮬레이션
+    const pressureNoise = Math.sin(springProgress * Math.PI * 4) * 0.08;
+    const dynamicStrokeWidth = baseDynamicWidth * (1 + pressureNoise);
+
+    // SVG dasharray를 사용해 선 긋기 길이를 결정 (overshoot 시 pathLength보다 커질 수 있음)
+    const drawingLine = Math.max(0, springProgress * pathLength);
+    const dashArray = `${drawingLine} 10000`;
+
+    // 잉크 맺힘(Ink Pooling)이 쫓아가는 현재 펜 끝 좌표
+    const currentX = startX + drawingLine;
+    const poolOpacity = interpolate(springProgress, [0.8, 1], [0, 0.7], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp' // 오버슈트 되어도 pool 투명도를 유지
+    });
+    const poolRadius = dynamicStrokeWidth * 0.55;
 
     return (
-        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10, pointerEvents: 'none' }}>
+        <svg style={{ 
+            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+            zIndex: 10, pointerEvents: 'none',
+            mixBlendMode, // <--- [핵심] 부모 HTML(이미지)과 합성되려면 최상위에 있어야 함!
+            opacity       // <--- [핵심] 최상위에 있어야 Stacking Context 버그를 우회할 수 있음!
+        }}>
             <defs>
-                <clipPath id={clipPathId}>
-                    <rect x={clipStartX} y={0} width={clipWidth} height="100%" />
-                </clipPath>
+                {/* [학습 포인트] 끝부분 뭉개기 필터: 완전 일직선이 아닌 수성 펜의 번진 액체감이 느껴지도록 */}
+                <filter id={filterId} filterUnits="userSpaceOnUse" x="-20%" y="-20%" width="140%" height="140%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="2" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+                </filter>
+
+                {/* 잉크 맺힘용 번짐 그라데이션 */}
+                <radialGradient id={gradId} cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor={stroke} stopOpacity="1" />
+                    <stop offset="60%" stopColor={stroke} stopOpacity="0.8" />
+                    <stop offset="100%" stopColor={stroke} stopOpacity="0" />
+                </radialGradient>
             </defs>
-            
-            <g clipPath={`url(#${clipPathId})`} style={{ mixBlendMode, opacity }}>
-                {fillPaths.map((d, i) => (
-                    <path
-                        key={`fill-${i}`}
-                        d={d}
-                        fill={stroke}
-                        stroke="none"
+
+            <g>
+                {/* 메인 형광펜 획 */}
+                <path
+                    d={`M ${startX} ${centerY} L ${physicalEndX} ${centerY}`}
+                    fill="none"
+                    stroke={stroke}
+                    strokeWidth={dynamicStrokeWidth}
+                    strokeLinecap="round"
+                    strokeDasharray={dashArray}
+                    filter={`url(#${filterId})`}
+                />
+
+                {/* [학습 포인트] 잉크 맺힘 점 (애니메이션 막바지에 서서히 나타나며 고임) */}
+                {poolOpacity > 0 && (
+                    <circle
+                        cx={currentX}
+                        cy={centerY}
+                        r={poolRadius}
+                        fill={`url(#${gradId})`}
+                        opacity={poolOpacity}
+                        filter={`url(#${filterId})`}
                     />
-                ))}
+                )}
             </g>
         </svg>
     );

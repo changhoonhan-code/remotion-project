@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import rough from 'roughjs';
+import { Easing, interpolate } from 'remotion';
 
 /**
  * 동그라미(하이라이트)의 시각적 스타일과 애니메이션 방향을 제어하는 옵션들입니다.
@@ -100,24 +101,50 @@ export const CircleOverlay: React.FC<CircleOverlayProps> = ({
      * 3. drawProgress * (endPoint - startPoint) * 100: 시작점부터 진행률에 따라 자라나는 '실선'을 만듭니다.
      * 4. 1000: 나머지 경로를 모두 '공백'으로 처리하여 그 이후에는 선이 안 보이게 합니다.
      */
-    const drawingLine = drawProgress * (endPoint - startPoint) * 100;
+    // [학습 포인트] Easing 커스텀 (Stroke Dash Easing):
+    // Out-Quart 느낌의 베지어 곡선을 적용하여, 처음엔 팍 그려지고 끝에서 미세하게 속도가 줄어들게 만듭니다.
+    const easedProgress = Easing.bezier(0.33, 1, 0.68, 1)(drawProgress);
+
+    const drawingLine = easedProgress * (endPoint - startPoint) * 100;
     const currentDashArray = `${drawingLine} 1000`;
     const currentOffset = -(startPoint * 100);
+
+    // [학습 포인트] 선 굵기 애니메이션 (Stroke Width Animation):
+    // 시작할 때 펜을 꾹 누름(1.5배) -> 중간에 빠르게 휘두름(0.5배) -> 끝날 때 다시 멈춤(1.1배)
+    const dynamicStrokeWidth = interpolate(
+        easedProgress,
+        [0, 0.5, 1],
+        [strokeWidth * 1.5, strokeWidth * 0.5, strokeWidth * 1.1],
+        {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp'
+        }
+    );
 
     const transformStyle: React.CSSProperties = {
         transformOrigin: `${centerX}px ${centerY}px`,
         transform: `rotate(${rotation}deg) scaleX(${isClockwise ? 1 : -1})`,
         mixBlendMode,
-        opacity
+        opacity,
+        filter: 'url(#rough-paper)' // SVG 거칠기 필터 적용
     };
 
     return (
         <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10, pointerEvents: 'none' }}>
+            {/* [학습 포인트] Roughness 필터 추가: 
+                feTurbulence와 feDisplacementMap을 사용해 매끈한 선이 아니라
+                종이 위에 그려진듯한 미세한 노이즈와 왜곡을 부여합니다. */}
+            <defs>
+                <filter id="rough-paper" x="-20%" y="-20%" width="140%" height="140%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+                </filter>
+            </defs>
             {svgPathData && (
                 <path
                     d={svgPathData} fill="none"
                     stroke={stroke} strokeLinecap="round" strokeLinejoin="round"
-                    strokeWidth={strokeWidth}
+                    strokeWidth={dynamicStrokeWidth}
                     pathLength="100"
                     strokeDasharray={currentDashArray}
                     strokeDashoffset={currentOffset}

@@ -1,0 +1,643 @@
+{
+  "block_id": "fit_stability_context",
+  "narration": "But here's the variable nobody talks about: sweat. Even the Beats show a within-product contradiction. While 87 reviewers praise the secure fit, a subset report heavy sweating causes the buds to rotate in the ear canal. Sweat acts as a lubricant, defeating friction even in hook-stabilized designs. The pattern suggests ear tip size is the hidden variable. Users with drier ears or correctly sized tips maintain the lock. Users who don't? Even the best retention system loses its grip.",
+  "evidence_quotes": [
+    {
+      "product_id": "product_c",
+      "review_id": "R3H00X608H1RFF",
+      "highlight_phrase": "stayed securely in place the entire time",
+      "star_rating": 5,
+      "is_humorous": false,
+      "selection_reason": "anchor",
+      "review_date": "2025-10-22",
+      "helpful_count": 2,
+      "has_media": false,
+      "highlight_bboxes": [
+        {
+          "normCenterX": 0.312,
+          "normCenterY": 0.1769,
+          "normWidth": 0.241,
+          "normHeight": 0.0178
+        }
+      ]
+    },
+    {
+      "product_id": "product_c",
+      "review_id": "R1TTI0SENLREW6",
+      "highlight_phrase": "sweat in these they constantly rotate",
+      "star_rating": 2,
+      "is_humorous": false,
+      "selection_reason": "contrast",
+      "review_date": "2025-03-27",
+      "helpful_count": 49,
+      "has_media": false,
+      "highlight_bboxes": [
+        {
+          "normCenterX": 0.6743,
+          "normCenterY": 0.5484,
+          "normWidth": 0.2289,
+          "normHeight": 0.0178
+        }
+      ]
+    }
+  ],
+  "word_timestamps": [
+    {
+      "word": "But",
+      "time_start": 0.0,
+      "time_end": 0.15,
+      "text_start": 0,
+      "text_end": 3
+    },
+    {
+      "word": "here's",
+      "time_start": 0.15,
+      "time_end": 0.4,
+      "text_start": 4,
+      "text_end": 10
+    },
+    {
+      "word": "the",
+      "time_start": 0.4,
+      "time_end": 0.5,
+      "text_start": 11,
+      "text_end": 14
+    },
+    {
+      "word": "variable",
+      "time_start": 0.5,
+      "time_end": 1.0,
+      "text_start": 15,
+      "text_end": 23
+    },
+    {
+      "word": "nobody",
+      "time_start": 1.0,
+      "time_end": 1.4,
+      "text_start": 24,
+      "text_end": 30
+    },
+    {
+      "word": "talks",
+      "time_start": 1.4,
+      "time_end": 1.7,
+      "text_start": 31,
+      "text_end": 36
+    },
+    {
+      "word": "about",
+      "time_start": 1.7,
+      "time_end": 2.0,
+      "text_start": 37,
+      "text_end": 42
+    },
+    {
+      "word": "sweat",
+      "time_start": 2.0,
+      "time_end": 2.6,
+      "text_start": 44,
+      "text_end": 49
+    },
+    {
+      "word": "Even",
+      "time_start": 3.0,
+      "time_end": 3.3,
+      "text_start": 51,
+      "text_end": 55
+    },
+    {
+      "word": "the",
+      "time_start": 3.3,
+      "time_end": 3.4,
+      "text_start": 56,
+      "text_end": 59
+    },
+    {
+      "word": "Beats",
+      "time_start": 3.4,
+      "time_end": 3.8,
+      "text_start": 60,
+      "text_end": 65
+    },
+    {
+      "word": "show",
+      "time_start": 3.8,
+      "time_end": 4.1,
+      "text_start": 66,
+      "text_end": 70
+    },
+    {
+      "word": "a",
+      "time_start": 4.1,
+      "time_end": 4.2,
+      "text_start": 71,
+      "text_end": 72
+    },
+    {
+      "word": "within-product",
+      "time_start": 4.2,
+      "time_end": 5.0,
+      "text_start": 73,
+      "text_end": 87
+    },
+    {
+      "word": "contradiction",
+      "time_start": 5.0,
+      "time_end": 5.8,
+      "text_start": 88,
+      "text_end": 101
+    },
+    {
+      "word": "While",
+      "time_start": 6.0,
+      "time_end": 6.3,
+      "text_start": 103,
+      "text_end": 108
+    },
+    {
+      "word": "87",
+      "time_start": 6.3,
+      "time_end": 6.8,
+      "text_start": 109,
+      "text_end": 111
+    },
+    {
+      "word": "reviewers",
+      "time_start": 6.8,
+      "time_end": 7.4,
+      "text_start": 112,
+      "text_end": 121
+    },
+    {
+      "word": "praise",
+      "time_start": 7.4,
+      "time_end": 7.8,
+      "text_start": 122,
+      "text_end": 128
+    },
+    {
+      "word": "the",
+      "time_start": 7.8,
+      "time_end": 7.9,
+      "text_start": 129,
+      "text_end": 132
+    },
+    {
+      "word": "secure",
+      "time_start": 7.9,
+      "time_end": 8.3,
+      "text_start": 133,
+      "text_end": 139
+    },
+    {
+      "word": "fit",
+      "time_start": 8.3,
+      "time_end": 8.6,
+      "text_start": 140,
+      "text_end": 143
+    },
+    {
+      "word": "a",
+      "time_start": 8.6,
+      "time_end": 8.7,
+      "text_start": 145,
+      "text_end": 146
+    },
+    {
+      "word": "subset",
+      "time_start": 8.7,
+      "time_end": 9.2,
+      "text_start": 147,
+      "text_end": 153
+    },
+    {
+      "word": "report",
+      "time_start": 9.2,
+      "time_end": 9.6,
+      "text_start": 154,
+      "text_end": 160
+    },
+    {
+      "word": "heavy",
+      "time_start": 9.6,
+      "time_end": 10.0,
+      "text_start": 161,
+      "text_end": 166
+    },
+    {
+      "word": "sweating",
+      "time_start": 10.0,
+      "time_end": 10.6,
+      "text_start": 167,
+      "text_end": 175
+    },
+    {
+      "word": "causes",
+      "time_start": 10.6,
+      "time_end": 11.0,
+      "text_start": 176,
+      "text_end": 182
+    },
+    {
+      "word": "the",
+      "time_start": 11.0,
+      "time_end": 11.1,
+      "text_start": 183,
+      "text_end": 186
+    },
+    {
+      "word": "buds",
+      "time_start": 11.1,
+      "time_end": 11.4,
+      "text_start": 187,
+      "text_end": 191
+    },
+    {
+      "word": "to",
+      "time_start": 11.4,
+      "time_end": 11.6,
+      "text_start": 192,
+      "text_end": 194
+    },
+    {
+      "word": "rotate",
+      "time_start": 11.6,
+      "time_end": 12.1,
+      "text_start": 195,
+      "text_end": 201
+    },
+    {
+      "word": "in",
+      "time_start": 12.1,
+      "time_end": 12.3,
+      "text_start": 202,
+      "text_end": 204
+    },
+    {
+      "word": "the",
+      "time_start": 12.3,
+      "time_end": 12.4,
+      "text_start": 205,
+      "text_end": 208
+    },
+    {
+      "word": "ear",
+      "time_start": 12.4,
+      "time_end": 12.7,
+      "text_start": 209,
+      "text_end": 212
+    },
+    {
+      "word": "canal",
+      "time_start": 12.7,
+      "time_end": 13.2,
+      "text_start": 213,
+      "text_end": 218
+    },
+    {
+      "word": "Sweat",
+      "time_start": 15.0,
+      "time_end": 15.5,
+      "text_start": 220,
+      "text_end": 225
+    },
+    {
+      "word": "acts",
+      "time_start": 15.5,
+      "time_end": 15.8,
+      "text_start": 226,
+      "text_end": 230
+    },
+    {
+      "word": "as",
+      "time_start": 15.8,
+      "time_end": 16.0,
+      "text_start": 231,
+      "text_end": 233
+    },
+    {
+      "word": "a",
+      "time_start": 16.0,
+      "time_end": 16.1,
+      "text_start": 234,
+      "text_end": 235
+    },
+    {
+      "word": "lubricant",
+      "time_start": 16.1,
+      "time_end": 16.8,
+      "text_start": 236,
+      "text_end": 245
+    },
+    {
+      "word": "defeating",
+      "time_start": 16.8,
+      "time_end": 17.4,
+      "text_start": 247,
+      "text_end": 256
+    },
+    {
+      "word": "friction",
+      "time_start": 17.4,
+      "time_end": 18.0,
+      "text_start": 257,
+      "text_end": 265
+    },
+    {
+      "word": "even",
+      "time_start": 18.0,
+      "time_end": 18.3,
+      "text_start": 266,
+      "text_end": 270
+    },
+    {
+      "word": "in",
+      "time_start": 18.3,
+      "time_end": 18.5,
+      "text_start": 271,
+      "text_end": 273
+    },
+    {
+      "word": "hook-stabilized",
+      "time_start": 18.5,
+      "time_end": 19.5,
+      "text_start": 274,
+      "text_end": 289
+    },
+    {
+      "word": "designs",
+      "time_start": 19.5,
+      "time_end": 20.2,
+      "text_start": 290,
+      "text_end": 297
+    },
+    {
+      "word": "The",
+      "time_start": 21.0,
+      "time_end": 21.2,
+      "text_start": 299,
+      "text_end": 302
+    },
+    {
+      "word": "pattern",
+      "time_start": 21.2,
+      "time_end": 21.7,
+      "text_start": 303,
+      "text_end": 310
+    },
+    {
+      "word": "suggests",
+      "time_start": 21.7,
+      "time_end": 22.3,
+      "text_start": 311,
+      "text_end": 319
+    },
+    {
+      "word": "ear",
+      "time_start": 22.3,
+      "time_end": 22.6,
+      "text_start": 320,
+      "text_end": 323
+    },
+    {
+      "word": "tip",
+      "time_start": 22.6,
+      "time_end": 22.9,
+      "text_start": 324,
+      "text_end": 327
+    },
+    {
+      "word": "size",
+      "time_start": 22.9,
+      "time_end": 23.3,
+      "text_start": 328,
+      "text_end": 332
+    },
+    {
+      "word": "is",
+      "time_start": 23.3,
+      "time_end": 23.5,
+      "text_start": 333,
+      "text_end": 335
+    },
+    {
+      "word": "the",
+      "time_start": 23.5,
+      "time_end": 23.6,
+      "text_start": 336,
+      "text_end": 339
+    },
+    {
+      "word": "hidden",
+      "time_start": 23.6,
+      "time_end": 24.1,
+      "text_start": 340,
+      "text_end": 346
+    },
+    {
+      "word": "variable",
+      "time_start": 24.1,
+      "time_end": 24.8,
+      "text_start": 347,
+      "text_end": 355
+    },
+    {
+      "word": "Users",
+      "time_start": 25.5,
+      "time_end": 25.9,
+      "text_start": 357,
+      "text_end": 362
+    },
+    {
+      "word": "with",
+      "time_start": 25.9,
+      "time_end": 26.2,
+      "text_start": 363,
+      "text_end": 367
+    },
+    {
+      "word": "drier",
+      "time_start": 26.2,
+      "time_end": 26.7,
+      "text_start": 368,
+      "text_end": 373
+    },
+    {
+      "word": "ears",
+      "time_start": 26.7,
+      "time_end": 27.1,
+      "text_start": 374,
+      "text_end": 378
+    },
+    {
+      "word": "or",
+      "time_start": 27.1,
+      "time_end": 27.3,
+      "text_start": 379,
+      "text_end": 381
+    },
+    {
+      "word": "correctly",
+      "time_start": 27.3,
+      "time_end": 27.9,
+      "text_start": 382,
+      "text_end": 391
+    },
+    {
+      "word": "sized",
+      "time_start": 27.9,
+      "time_end": 28.3,
+      "text_start": 392,
+      "text_end": 397
+    },
+    {
+      "word": "tips",
+      "time_start": 28.3,
+      "time_end": 28.7,
+      "text_start": 398,
+      "text_end": 402
+    },
+    {
+      "word": "maintain",
+      "time_start": 28.7,
+      "time_end": 29.3,
+      "text_start": 403,
+      "text_end": 411
+    },
+    {
+      "word": "the",
+      "time_start": 29.3,
+      "time_end": 29.4,
+      "text_start": 412,
+      "text_end": 415
+    },
+    {
+      "word": "lock",
+      "time_start": 29.4,
+      "time_end": 29.8,
+      "text_start": 416,
+      "text_end": 420
+    },
+    {
+      "word": "Users",
+      "time_start": 30.5,
+      "time_end": 30.9,
+      "text_start": 422,
+      "text_end": 427
+    },
+    {
+      "word": "who",
+      "time_start": 30.9,
+      "time_end": 31.2,
+      "text_start": 428,
+      "text_end": 431
+    },
+    {
+      "word": "don't",
+      "time_start": 31.2,
+      "time_end": 31.7,
+      "text_start": 432,
+      "text_end": 437
+    },
+    {
+      "word": "Even",
+      "time_start": 32.5,
+      "time_end": 32.8,
+      "text_start": 439,
+      "text_end": 443
+    },
+    {
+      "word": "the",
+      "time_start": 32.8,
+      "time_end": 32.9,
+      "text_start": 444,
+      "text_end": 447
+    },
+    {
+      "word": "best",
+      "time_start": 32.9,
+      "time_end": 33.3,
+      "text_start": 448,
+      "text_end": 452
+    },
+    {
+      "word": "retention",
+      "time_start": 33.3,
+      "time_end": 33.9,
+      "text_start": 453,
+      "text_end": 462
+    },
+    {
+      "word": "system",
+      "time_start": 33.9,
+      "time_end": 34.4,
+      "text_start": 463,
+      "text_end": 469
+    },
+    {
+      "word": "loses",
+      "time_start": 34.4,
+      "time_end": 34.9,
+      "text_start": 470,
+      "text_end": 475
+    },
+    {
+      "word": "its",
+      "time_start": 34.9,
+      "time_end": 35.1,
+      "text_start": 476,
+      "text_end": 479
+    },
+    {
+      "word": "grip",
+      "time_start": 35.1,
+      "time_end": 35.6,
+      "text_start": 480,
+      "text_end": 484
+    }
+  ],
+  "visualization_data": {
+    "data_type": "theme_ranking",
+    "theme_name": "Fit Stability",
+    "chart_data": [
+      {
+        "rank": 1,
+        "product_id": "product_c",
+        "product_name": "Beats Powerbeats Pro 2",
+        "mention_count": 115,
+        "positive_count": 87,
+        "negative_count": 28,
+        "positive_ratio": 0.757,
+        "insight_level": "full"
+      },
+      {
+        "rank": 2,
+        "product_id": "product_a",
+        "product_name": "Bose QuietComfort Ultra Earbuds (2nd Gen)",
+        "mention_count": 11,
+        "positive_count": 7,
+        "negative_count": 4,
+        "positive_ratio": 0.636,
+        "insight_level": "rank_only"
+      },
+      {
+        "rank": 3,
+        "product_id": "product_b",
+        "product_name": "Samsung Galaxy Buds 3 Pro",
+        "mention_count": 79,
+        "positive_count": 10,
+        "negative_count": 68,
+        "positive_ratio": 0.127,
+        "insight_level": "full"
+      }
+    ]
+  },
+  "scene_type": "theme_comparison",
+  "review_card_data": {
+    "image_path": "card_combined_fit_stability_context.png",
+    "size": {
+      "width": 1024,
+      "height": 1012
+    }
+  }
+}
