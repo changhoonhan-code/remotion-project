@@ -4,7 +4,7 @@
  * React Hook에 의존하지 않으므로 어디서든 자유롭게 호출할 수 있습니다.
  */
 import { interpolate } from 'remotion';
-import { CameraKeyframe } from './CameraLayer';
+import { CameraKeyframe } from './camera/layers/CameraLayer';
 import {
     HighlightConfig,
     TimelineScene,

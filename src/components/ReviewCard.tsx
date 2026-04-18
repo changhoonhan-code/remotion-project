@@ -1,6 +1,6 @@
-import React, { useRef, useLayoutEffect, useState } from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
+import { staticFile } from 'remotion';
 import './ReviewCard.css';
-
 export interface ReviewData {
     review_id: string;
     reviewer_name: string;
@@ -20,6 +20,15 @@ interface ReviewCardProps {
     data: ReviewData;
     onMeasureHighlight?: (bbox: { x1: number, y1: number, x2: number, y2: number }) => void;
 }
+
+// 상대 경로인 경우 Remotion의 public 폴더 참조를 위해 staticFile로 감싸주는 헬퍼
+const getImageUrl = (url: string) => {
+    if (url.startsWith('http') || url.startsWith('data:')) {
+        return url;
+    }
+    return staticFile(url);
+};
+
 
 /**
  * 하이라이트할 문구를 찾아서 앞/중간/뒤로 쪼개는 헬퍼. 
@@ -68,15 +77,15 @@ function splitByHighlight(text: string, highlight?: string) {
 
 // 아마존 꽉 찬 별 SVG
 const StarFilled = () => (
-    <svg className="star-icon" width="16" height="16" viewBox="0 0 512 512" fill="#FFA41C" xmlns="http://www.w3.org/2000/svg">
-        <path d="M256 38.013l68.17 210.1h221.03l-178.8 129.9 68.31 210.15L256 458.11l-178.71 130.05 68.3-210.15L-33.2 248.11H187.83L256 38.01z" stroke="#FFA41C" strokeWidth="20" strokeLinejoin="round"/>
+    <svg className="star-icon" width="14" height="14" viewBox="-45 25 600 580" fill="#FF9E60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M256 38.013l68.17 210.1h221.03l-178.8 129.9 68.31 210.15L256 458.11l-178.71 130.05 68.3-210.15L-33.2 248.11H187.83L256 38.01z" stroke="#FF9E60" strokeWidth="20" strokeLinejoin="round"/>
     </svg>
 );
 
 // 아마존 빈 별 SVG
 const StarEmpty = () => (
-    <svg className="star-icon" width="16" height="16" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M256 38.013l68.17 210.1h221.03l-178.8 129.9 68.31 210.15L256 458.11l-178.71 130.05 68.3-210.15L-33.2 248.11H187.83L256 38.01z" stroke="#D5D9D9" strokeWidth="20" strokeLinejoin="round"/>
+    <svg className="star-icon" width="14" height="14" viewBox="-45 25 600 580" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M256 38.013l68.17 210.1h221.03l-178.8 129.9 68.31 210.15L256 458.11l-178.71 130.05 68.3-210.15L-33.2 248.11H187.83L256 38.01z" stroke="#FF9E60" strokeWidth="20" strokeLinejoin="round"/>
     </svg>
 );
 
@@ -114,7 +123,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ data, onMeasureHighlight
             <div className="profile-section">
                 <div className="avatar-container">
                     {data.avatar_url ? (
-                        <img src={data.avatar_url} alt="Profile" className="avatar-image" />
+                        <img src={getImageUrl(data.avatar_url)} alt="Profile" className="avatar-image" />
                     ) : (
                         <div style={{ backgroundColor: '#E6E6E6', width: '100%', height: '100%' }} />
                     )}
@@ -166,7 +175,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ data, onMeasureHighlight
             {data.images && data.images.length > 0 && (
                 <div className="review-thumbnails">
                     {data.images.map((url, i) => (
-                        <img key={i} src={url} alt={`Review img ${i}`} className="review-thumbnail-img" />
+                        <img key={i} src={getImageUrl(url)} alt={`Review img ${i}`} className="review-thumbnail-img" />
                     ))}
                 </div>
             )}

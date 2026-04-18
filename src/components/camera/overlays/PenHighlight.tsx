@@ -96,13 +96,7 @@ export const PenHighlight: React.FC<PenHighlightProps> = ({
     const drawingLine = Math.max(0, springProgress * pathLength);
     const dashArray = `${drawingLine} 10000`;
 
-    // 잉크 맺힘(Ink Pooling)이 쫓아가는 현재 펜 끝 좌표
-    const currentX = startX + drawingLine;
-    const poolOpacity = interpolate(springProgress, [0.8, 1], [0, 0.4], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp' // 오버슈트 되어도 pool 투명도를 유지
-    });
-    const poolRadius = dynamicStrokeWidth * 0.45; // 선 바깥으로 튀어나가지 않게 반경 축소
+    // 잉크 맺힘용 (현재 사용하지 않음, 향후 렌더링에 추가 가능)
 
     return (
         <svg style={{

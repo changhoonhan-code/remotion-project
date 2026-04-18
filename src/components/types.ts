@@ -2,8 +2,8 @@
  * 템플릿에 주입할 Props 타입 정의 (데이터 기반 설계)
  * 모든 컴포넌트가 공유하는 타입들을 한 곳에 모아 관리합니다.
  */
-import { CameraKeyframe } from './CameraLayer';
-import { CircleAnimationOptions } from './CircleOverlay';
+import { CameraKeyframe } from './camera/layers/CameraLayer';
+import { CircleAnimationOptions } from './camera/overlays/CircleOverlay';
 
 // ==========================================
 // 오디오 / 자막 관련

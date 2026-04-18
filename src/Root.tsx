@@ -5,6 +5,7 @@ import { PieChart } from './components/PieChart';
 import { NarratedScene } from './components/NarratedScene';
 import { spring, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 import ancLeaderData from './data/anc_leader.json';
+import { ReviewCard } from './components/ReviewCard';
 
 // 오디오와 자막이 포함된 하이라이트 씬 래퍼 (데이터 연동)
 const HighlightSceneWithNarration: React.FC<any> = (props) => {
@@ -140,6 +141,39 @@ export const RemotionRoot: React.FC = () => {
             ]
           }
         }}
+      />
+      <Composition
+        id="ReviewCardPreview"
+        component={() => {
+          const mockReviewData = {
+            "review_id": "R3H00X608H1RFF",
+            "reviewer_name": "JLew",
+            "avatar_url": "reviews/avatars/R3H00X608H1RFF.png",
+            "rating": 5,
+            "title": "Truly the best earbuds out there...",
+            "date_text": "Reviewed in the United States on October 22, 2025",
+            "variant_text": "Color: Jet BlackSet: Standalone",
+            "is_verified": true,
+            "body": "I use these earbuds while mowing on the farm—both on a tractor and a riding lawn mower—and I’m genuinely impressed. With my Apple AirPods, I repeatedly struggled to keep them in once I got hot and sweaty, which affected both sound quality and volume. Not so with these.I’ve mowed twice in the Texas heat, and they’ve stayed securely in place the entire time. The sound quality remains consistent, with noticeably better bass and effective noise cancellation that blocks out the roar of the equipment. These earbuds have made a real difference in my workday comfort and listening experience.",
+            "helpful_text": "2 people found this helpful",
+            "images": [
+              "reviews/photos/R3H00X608H1RFF_0.jpg",
+              "reviews/photos/R3H00X608H1RFF_1.jpg"
+            ],
+            "highlight_phrase": "stayed securely in place the entire time",
+          };
+          return (
+            <AbsoluteFill style={{ backgroundColor: '#f0f2f5', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ width: '800px' }}>
+                <ReviewCard data={mockReviewData} onMeasureHighlight={(bbox) => console.log('Measured bbox:', bbox)} />
+              </div>
+            </AbsoluteFill>
+          );
+        }}
+        durationInFrames={30}
+        fps={30}
+        width={1920}
+        height={1080}
       />
     </>
   );

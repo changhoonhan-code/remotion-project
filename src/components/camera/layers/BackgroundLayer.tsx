@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AbsoluteFill, Img, staticFile } from 'remotion';
+import { AbsoluteFill, staticFile } from 'remotion';
 
 /**
  * 배경 레이어의 Props 정의

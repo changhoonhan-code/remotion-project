@@ -5,14 +5,15 @@ import {
     useCurrentFrame,
     useVideoConfig,
     Img,
-    Easing,
     staticFile,
 } from 'remotion';
-import { CameraLayer, CameraKeyframe } from './CameraLayer';
-import { CircleOverlay, CircleAnimationOptions } from './CircleOverlay';
-import { PenHighlight } from './PenHighlight';
-import { BackgroundLayer } from './BackgroundLayer';
-import { MotionBlurLayer } from './MotionBlurLayer';
+import { CameraLayer, CameraKeyframe } from './camera/layers/CameraLayer';
+import { CircleOverlay, CircleAnimationOptions } from './camera/overlays/CircleOverlay';
+import { PenHighlight } from './camera/overlays/PenHighlight';
+import { BackgroundLayer } from './camera/layers/BackgroundLayer';
+import { MotionBlurLayer } from './camera/layers/MotionBlurLayer';
+import { useCameraTargets } from './camera/hooks/useCameraTargets';
+import { useCameraState } from './camera/hooks/useCameraState';
 import { HighlightConfig, TimelineScene, StripImage } from './types';
 import { buildHighlightsFromScenes, buildCameraTimeline } from './sceneHelpers';
 
@@ -108,115 +109,29 @@ export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
     const { widthScale: defaultWidthScale = 1.05, heightScale: defaultHeightScale = 1.8 } = circleOptions;
 
     /**
-     * 모든 좌표 계산의 기준점 수립:
-     * 이미지의 배율에 맞춰 화면 내 픽셀 좌표들을 미리 계산합니다.
+     * 모든 좌표 계산의 기준점 수립 (커스텀 훅으로 분리됨)
      */
-    const targets = useMemo(() => {
-        // 이미지 가세비(finalAspectRatio)가 뷰포트 비율(width/height)보다 작으면 세로가 꽉 차게 렌더링 (object-fit: contain 효과)
-        const isHeightConstrained = (width / height) > finalAspectRatio;
-        const imgRenderWidth = isHeightConstrained ? height * finalAspectRatio : width;
-        const imgRenderHeight = isHeightConstrained ? height : width / finalAspectRatio;
-
-        // 정중앙 정렬을 위한 오프셋 (세로가 꽉 차면 좌우 여백, 가로가 꽉 차면 상하 여백)
-        const imgOffsetX = (width - imgRenderWidth) / 2;
-        const imgOffsetY = (height - imgRenderHeight) / 2;
-
-        return {
-            imgRenderWidth,
-            imgRenderHeight,
-            imgOffsetX,
-            imgOffsetY,
-            cardCenter: { x: width / 2, y: height / 2 },
-            highlights: finalHighlights.map(h => {
-                const scaleX = imgRenderWidth / bw;
-                const scaleY = imgRenderHeight / bh;
-
-                const hWidthScale = h.options?.widthScale ?? defaultWidthScale;
-                const hHeightScale = h.options?.heightScale ?? defaultHeightScale;
-
-                const scaledTextWidth = h.widthPx * scaleX;
-                const scaledTextHeight = h.heightPx * scaleY;
-
-                return {
-                    x: imgOffsetX + (imgRenderWidth * h.relativeX) + scaledTextWidth / 2,
-                    y: imgOffsetY + (imgRenderHeight * h.relativeY) + scaledTextHeight / 2,
-                    size: {
-                        width: scaledTextWidth * hWidthScale,
-                        height: scaledTextHeight * hHeightScale
-                    }
-                };
-            })
-        };
-    }, [width, height, finalAspectRatio, finalHighlights, defaultWidthScale, defaultHeightScale, bw, bh]);
+    const targets = useCameraTargets({
+        width,
+        height,
+        finalAspectRatio,
+        finalHighlights,
+        defaultWidthScale,
+        defaultHeightScale,
+        bw,
+        bh,
+    });
 
     /**
-     * 실시간 카메라 상태 보간 계산
+     * 실시간 카메라 상태 보간 계산 (커스텀 훅으로 분리됨)
      */
-    const cameraState = useMemo(() => {
-        if (finalCameraTimeline.length === 0) {
-            return { tx: 0, ty: 0, scale: 1, cx: width / 2, cy: height / 2 };
-        }
-
-        // 타겟 지점들을 실제 픽셀 좌표로 환산
-        const parsedKeyframes = finalCameraTimeline.map(kf => {
-            let cx = targets.cardCenter.x;
-            let cy = targets.cardCenter.y;
-
-            if (kf.targetCoords === 'center') {
-                cx = targets.cardCenter.x;
-                cy = targets.cardCenter.y;
-            } else if (typeof kf.targetCoords === 'object') {
-                cx = targets.imgOffsetX + (targets.imgRenderWidth * kf.targetCoords.x);
-                cy = targets.imgOffsetY + (targets.imgRenderHeight * kf.targetCoords.y);
-            }
-
-            return {
-                time: kf.time,
-                cx, cy, scale: kf.scale,
-                easingType: kf.easingType || 'smooth',
-                bezierPoints: kf.bezierPoints
-            };
-        });
-
-        // 현재 구간 찾기
-        let currentK = 0;
-        while (currentK < parsedKeyframes.length - 1 && sec > parsedKeyframes[currentK + 1].time) {
-            currentK++;
-        }
-        const k1 = parsedKeyframes[currentK];
-        const k2 = parsedKeyframes[currentK + 1];
-
-        // 보간 진행률 계산
-        let progress = 0;
-        if (k2 && k2.time > k1.time) {
-            let easingFn = Easing.inOut(Easing.cubic);
-            if (k2.easingType === 'snap') {
-                easingFn = Easing.bezier(0.1, 1.0, 0.3, 1.0);
-            } else if (k2.easingType === 'bezier' && k2.bezierPoints) {
-                easingFn = Easing.bezier(...k2.bezierPoints);
-            }
-
-            progress = interpolate(sec, [k1.time, k2.time], [0, 1], {
-                extrapolateLeft: 'clamp',
-                extrapolateRight: 'clamp',
-                easing: easingFn
-            });
-        }
-
-        // 최종 상태값 결정
-        const nextCx = k2 ? k2.cx : k1.cx;
-        const nextCy = k2 ? k2.cy : k1.cy;
-        const nextScale = k2 ? k2.scale : k1.scale;
-
-        const cxValue = k1.cx + (nextCx - k1.cx) * progress;
-        const cyValue = k1.cy + (nextCy - k1.cy) * progress;
-        const sValue = k1.scale + (nextScale - k1.scale) * progress;
-
-        const txValue = (width / 2) - cxValue * sValue;
-        const tyValue = (height / 2) - cyValue * sValue;
-
-        return { tx: txValue, ty: tyValue, scale: sValue, cx: cxValue, cy: cyValue };
-    }, [sec, width, height, finalCameraTimeline, targets]);
+    const cameraState = useCameraState({
+        sec,
+        width,
+        height,
+        finalCameraTimeline,
+        targets,
+    });
 
     return (
         <AbsoluteFill>

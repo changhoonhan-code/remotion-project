@@ -13,7 +13,8 @@ import {
     CalculateMetadataFunction,
 } from 'remotion';
 import { NoiseOverlay } from './NoiseOverlay';
-import { CameraKeyframe } from './CameraLayer';
+import { CameraKeyframe } from './camera/layers/CameraLayer';
+import { CircleAnimationOptions } from './camera/overlays/CircleOverlay';
 import { CameraWalkingSequence } from './CameraWalkingSequence';
 import {
     HighlightConfig,

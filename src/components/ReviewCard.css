@@ -13,8 +13,8 @@
 .profile-section {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
+    gap: 8px;
+    margin-bottom: 4px; /* Amazon a-spacing-mini */
 }
 
 .avatar-container {
@@ -37,7 +37,7 @@
 
 .reviewer-name {
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 400; /* Amazon's light text for name */
     color: #0F1111;
 }
 
@@ -48,12 +48,12 @@
 .rating-title-section {
     display: flex;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 2px;
 }
 
 .stars-container {
     display: flex;
-    gap: 1px;
+    gap: 0px;
     margin-right: 8px;
 }
 
@@ -64,15 +64,15 @@
 }
 
 .review-date {
-    font-size: 13px;
+    font-size: 14px; /* Amazon a-size-base */
     color: #565959;
-    margin-bottom: 6px;
+    margin-bottom: 4px; /* Amazon a-spacing-mini between sections typically */
 }
 
 .format-strip {
-    font-size: 13px;
+    font-size: 12px; /* Amazon a-size-mini */
     color: #565959;
-    margin-bottom: 8px;
+    margin-bottom: 8px; /* Amazon a-spacing-small before body */
     display: flex;
     align-items: center;
     gap: 8px;
@@ -80,10 +80,11 @@
 
 .format-separator {
     color: #D5D9D9; 
+    font-size: 12px;
 }
 
 .verified-purchase {
-    font-size: 13px;
+    font-size: 12px; /* Amazon a-size-mini */
     font-weight: bold;
     color: #C45500; /* Amazon's orange */
 }
@@ -106,13 +107,14 @@
     width: auto;
     border-radius: 4px;
     object-fit: contain;
+    border: 1px solid #D5D9D9; /* Amazon's faint border around thumbnails */
 }
 
 .helpful-section {
-    font-size: 13px;
+    font-size: 14px; /* a-size-base text for helpers */
     color: #565959;
-    margin-top: 24px;
-    margin-bottom: 6px;
+    margin-top: 14px;
+    margin-bottom: 8px;
 }
 
 .helpful-button-row {
