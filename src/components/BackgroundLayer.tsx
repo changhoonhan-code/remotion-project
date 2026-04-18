@@ -18,7 +18,7 @@ export interface BackgroundLayerProps {
  * 카메라의 움직임에 반응하여 미세한 패러랙스(Parallax) 효과를 만들어냅니다.
  */
 export const BackgroundLayer: React.FC<BackgroundLayerProps> = ({
-    src = staticFile('background.png'),
+    src = staticFile('background.webp'),
     currentScale,
     cx,
     cy,
@@ -47,18 +47,20 @@ export const BackgroundLayer: React.FC<BackgroundLayerProps> = ({
 
     return (
         <AbsoluteFill style={{ zIndex: 0, overflow: 'hidden' }}>
-            <Img
-                src={src}
+            <div
                 style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center',
+                    position: 'absolute',
+                    top: '-100%',
+                    left: '-100%',
+                    width: '300%',
+                    height: '300%',
+                    backgroundImage: `url(${src})`,
+                    backgroundRepeat: 'repeat',
+                    backgroundPosition: 'center',
                     opacity,
-                    // 계산된 패러랙스 변환 적용
-                    transform: `scale(${transform.scale}) translateX(${transform.translateX}px) translateY(${transform.translateY}px)`,
+                    // scale() 배율 효과를 빼고 이동(translate) 패러랙스만 남깁니다.
+                    transform: `translateX(${transform.translateX}px) translateY(${transform.translateY}px)`,
                 }}
-                alt="Background"
             />
         </AbsoluteFill>
     );

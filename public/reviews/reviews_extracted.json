@@ -1,0 +1,28 @@
+{
+    "metadata": {
+        "generated_at": "2026-04-18T12:00:00Z",
+        "total_reviews": 2
+    },
+    "reviews": [
+        {
+            "review_id": "R1HZODJ2ZI3AYF",
+            "author_name": "John Doe",
+            "rating": 5,
+            "title": "Great fit",
+            "body": "These earbuds are amazing. They stayed securely in place the entire time during my run. Highly recommend!",
+            "highlight_phrase": "stayed securely in place the entire time",
+            "start": 6.0,
+            "end": 9.2
+        },
+        {
+            "review_id": "R5PMILX3BIOWN",
+            "author_name": "Jane Smith",
+            "rating": 3,
+            "title": "Good but slips",
+            "body": "The sound quality is good, but when you sweat in these they constantly rotate. Not great for heavy gym sessions.",
+            "highlight_phrase": "sweat in these they constantly rotate",
+            "start": 9.6,
+            "end": 13.2
+        }
+    ]
+}

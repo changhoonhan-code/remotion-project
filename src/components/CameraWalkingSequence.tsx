@@ -6,27 +6,24 @@ import {
     useVideoConfig,
     Img,
     Easing,
+    staticFile,
 } from 'remotion';
 import { CameraLayer, CameraKeyframe } from './CameraLayer';
 import { CircleOverlay, CircleAnimationOptions } from './CircleOverlay';
 import { PenHighlight } from './PenHighlight';
 import { BackgroundLayer } from './BackgroundLayer';
 import { MotionBlurLayer } from './MotionBlurLayer';
-import { HighlightConfig, TimelineScene } from './types';
+import { HighlightConfig, TimelineScene, StripImage } from './types';
 import { buildHighlightsFromScenes, buildCameraTimeline } from './sceneHelpers';
-
-// 기본 이미지 비율
-const DEFAULT_ASPECT_RATIO = 1024 / 410;
 
 /**
  * CameraWalkingSequence에 주입되는 Props입니다.
  * 각 시퀀스가 독립적으로 카메라 워킹, 이미지, 하이라이트를 렌더링합니다.
  */
 interface CameraWalkingSequenceProps {
-    imageSrc: string;
+    images?: StripImage[];
     imageAspectRatio?: number;
     baseWidth?: number;
-    baseHeight?: number;
     scenes?: TimelineScene[];
     highlights?: HighlightConfig[];
     cameraTimeline?: CameraKeyframe[];
@@ -35,6 +32,7 @@ interface CameraWalkingSequenceProps {
     parallaxFactor?: number;
     backgroundSrc?: string;
     offsetSeconds?: number;
+    scaleMode?: 'fixed' | 'target';
 }
 
 /**
@@ -43,10 +41,9 @@ interface CameraWalkingSequenceProps {
  * 각 시퀀스의 scenes 시간이 그대로 동작합니다.
  */
 export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
-    imageSrc,
+    images,
     imageAspectRatio,
     baseWidth,
-    baseHeight,
     scenes,
     highlights = [],
     cameraTimeline = [],
@@ -55,6 +52,7 @@ export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
     parallaxFactor = 0.15,
     backgroundSrc,
     offsetSeconds = 0,
+    scaleMode = 'target',
 }) => {
     const frame = useCurrentFrame();
     const { fps, width, height } = useVideoConfig();
@@ -63,14 +61,23 @@ export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
     const sec = Math.max(0, frame) / (fps || 30);
 
     const bw = baseWidth ?? 1024;
-    const bh = baseHeight ?? 410;
+
+    // [UPDATE] 스트립 이미지 높이 계산 로직 추가
+    const totalHeight = useMemo(() => {
+        if (images && images.length > 0) {
+            return images.reduce((acc, img) => acc + img.height, 0);
+        }
+        return 410; // Fallback
+    }, [images]);
+
+    // 내부 연산은 모두 totalHeight를 따릅니다.
+    const bh = totalHeight;
 
     // 이미지 가세비 결정
     const finalAspectRatio = useMemo(() => {
         if (imageAspectRatio) return imageAspectRatio;
-        if (baseWidth && baseHeight) return baseWidth / baseHeight;
-        return DEFAULT_ASPECT_RATIO;
-    }, [imageAspectRatio, baseWidth, baseHeight]);
+        return bw / totalHeight;
+    }, [imageAspectRatio, bw, totalHeight]);
 
     // 타임라인 데이터에 오프셋 적용
     const offsetScenes = useMemo(() =>
@@ -79,22 +86,23 @@ export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
             start: s.start - offsetSeconds,
             end: s.end - offsetSeconds,
         })),
-    [scenes, offsetSeconds]);
+        [scenes, offsetSeconds]);
 
     const offsetCameraTimeline = useMemo(() =>
         cameraTimeline?.map(kf => ({
             ...kf,
             time: kf.time < 900 ? kf.time - offsetSeconds : kf.time,
         })),
-    [cameraTimeline, offsetSeconds]);
+        [cameraTimeline, offsetSeconds]);
 
     const finalHighlights = useMemo(() =>
         buildHighlightsFromScenes(offsetScenes, highlights, bw, bh),
-    [offsetScenes, highlights, bw, bh]);
+        [offsetScenes, highlights, bw, bh]);
 
+    // contain 축소 보정을 위해 뷰포트 크기(width, height)와 scaleMode를 함께 전달
     const finalCameraTimeline = useMemo(() =>
-        buildCameraTimeline(offsetScenes, offsetCameraTimeline ?? [], bw, bh),
-    [offsetScenes, offsetCameraTimeline, bw, bh]);
+        buildCameraTimeline(offsetScenes, offsetCameraTimeline ?? [], bw, bh, width, height, scaleMode),
+        [offsetScenes, offsetCameraTimeline, bw, bh, width, height, scaleMode]);
 
     // 개별 하이라이트 계산 시 사용할 기본 배율값들
     const { widthScale: defaultWidthScale = 1.05, heightScale: defaultHeightScale = 1.8 } = circleOptions;
@@ -108,7 +116,7 @@ export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
         const isHeightConstrained = (width / height) > finalAspectRatio;
         const imgRenderWidth = isHeightConstrained ? height * finalAspectRatio : width;
         const imgRenderHeight = isHeightConstrained ? height : width / finalAspectRatio;
-        
+
         // 정중앙 정렬을 위한 오프셋 (세로가 꽉 차면 좌우 여백, 가로가 꽉 차면 상하 여백)
         const imgOffsetX = (width - imgRenderWidth) / 2;
         const imgOffsetY = (height - imgRenderHeight) / 2;
@@ -189,6 +197,7 @@ export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
             }
 
             progress = interpolate(sec, [k1.time, k2.time], [0, 1], {
+                extrapolateLeft: 'clamp',
                 extrapolateRight: 'clamp',
                 easing: easingFn
             });
@@ -232,32 +241,36 @@ export const CameraWalkingSequence: React.FC<CameraWalkingSequenceProps> = ({
                     currentTy={cameraState.ty}
                     currentScale={cameraState.scale}
                 >
-                    {/* 렌더링할 메인 이미지 (세피아 및 밝기 보정 필터 적용) */}
-                    <Img
-                        src={imageSrc}
-                        style={{
-                            position: 'absolute', 
+                    {/* 렌더링할 메인 스트립 이미지 (세피아 및 밝기 보정 필터 적용) */}
+                    {images && images.length > 0 && (
+                        <div style={{
+                            position: 'absolute',
                             left: targets.imgOffsetX,
                             top: targets.imgOffsetY,
-                            width: targets.imgRenderWidth, 
-                            height: targets.imgRenderHeight, 
+                            width: targets.imgRenderWidth,
+                            height: targets.imgRenderHeight,
                             zIndex: 1,
-                            filter: 'sepia(0.15) brightness(0.98)',
-                        }}
-                        alt="Target Content"
-                    />
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}>
+                            {images.map((img, idx) => {
+                                const renderSrc = img.src.startsWith('http') || img.src.startsWith('data:') || img.src.startsWith('blob:') || img.src.includes('/')
+                                    ? img.src
+                                    : staticFile(img.src);
+                                return (
+                                    <Img
+                                        key={idx}
+                                        src={renderSrc}
+                                        // 이미지가 투명해졌으므로 자체적으로 multiply 블렌딩을 주어 배경 레이어에 텍스트가 자연스럽게 스며들도록 합니다
+                                        style={{ width: '100%', height: 'auto', mixBlendMode: 'multiply', filter: 'sepia(0.15) brightness(0.98)' }}
+                                        alt={`Target Content ${idx}`}
+                                    />
+                                );
+                            })}
+                        </div>
+                    )}
 
-                    {/* 종이 표면 느낌을 주기 위해 곱하기(multiply) 모드로 씌운 상아색 레이어. 
-                        이미지가 있는 영역에만 딱 맞게 씌워 레터박스를 침범하지 않게 함 */}
-                    <div style={{
-                        position: 'absolute', 
-                        left: targets.imgOffsetX,
-                        top: targets.imgOffsetY,
-                        width: targets.imgRenderWidth, 
-                        height: targets.imgRenderHeight,
-                        backgroundColor: '#F7EEDF', mixBlendMode: 'multiply', opacity: 0.6,
-                        zIndex: 2, pointerEvents: 'none'
-                    }} />
+                    {/* 이제 이미지가 투명 배경이므로, 이전에 사용하던 사각형 형태의 상아색 multiply 레이어는 불필요하여 제거합니다. */}
 
                     {/* 여러 개의 하이라이트가 순차적/개별적으로 그려지는 오버레이들 */}
                     {finalHighlights.map((h, i) => {

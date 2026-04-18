@@ -1,0 +1,144 @@
+/* d:\remotion_project\my-reference-study\src\components\ReviewCard.css */
+
+.review-card-container {
+    width: 1024px;
+    background-color: #ffffff;
+    font-family: "AmazonEmber", Arial, sans-serif;
+    color: #0F1111;
+    text-align: left;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.avatar-container {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: #E6E6E6;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(2.5px); /* 모자이크(개인정보 보호) 느낌 대체 */
+}
+
+.reviewer-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #0F1111;
+}
+
+.reviewer-name-blurred {
+    filter: blur(4px); /* 이름 마스킹 */
+}
+
+.rating-title-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.stars-container {
+    display: flex;
+    gap: 1px;
+    margin-right: 8px;
+}
+
+.review-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #0F1111;
+}
+
+.review-date {
+    font-size: 13px;
+    color: #565959;
+    margin-bottom: 6px;
+}
+
+.format-strip {
+    font-size: 13px;
+    color: #565959;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.format-separator {
+    color: #D5D9D9; 
+}
+
+.verified-purchase {
+    font-size: 13px;
+    font-weight: bold;
+    color: #C45500; /* Amazon's orange */
+}
+
+.review-body {
+    font-size: 14px;
+    line-height: 20px;
+    color: #0F1111;
+    white-space: pre-wrap; /* 줄바꿈 반영 */
+}
+
+.review-thumbnails {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.review-thumbnail-img {
+    height: 81px;
+    width: auto;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+.helpful-section {
+    font-size: 13px;
+    color: #565959;
+    margin-top: 24px;
+    margin-bottom: 6px;
+}
+
+.helpful-button-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.helpful-button {
+    border: 1px solid #D5D9D9;
+    border-radius: 16px;
+    padding: 6px 24px;
+    font-size: 13px;
+    font-weight: normal;
+    color: #0F1111;
+    background: transparent;
+}
+
+.report-text {
+    font-size: 13px;
+    color: #565959;
+}
+
+/* 카메라 좌표 타겟팅용 인비저블 영역 (Measure를 위해 존재함) */
+.highlight-target {
+    background-color: transparent;
+    border-radius: 2px;
+    /* transition: background-color 0.2s ease; */
+}

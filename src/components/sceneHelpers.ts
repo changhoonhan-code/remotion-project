@@ -34,29 +34,44 @@ export function buildHighlightsFromScenes(
 
         scenes.forEach(scene => {
             if (scene.target.type === 'circle' || scene.target.type === 'pen') {
-                const { x1, y1, x2, y2, baseW, baseH, options } = scene.target;
-                const bw = baseW ?? baseWidth;
-                const bh = baseH ?? baseHeight;
-                const key = `${scene.target.type}:${x1},${y1},${x2},${y2}`;
+                const target = scene.target;
+                const bw = target.baseW ?? baseWidth;
+                const bh = target.baseH ?? baseHeight;
+                const options = target.options;
 
-                if (!hMap.has(key)) {
-                    hMap.set(key, extracted.length);
-                    extracted.push({
-                        type: scene.target.type,
-                        relativeX: x1 / bw,
-                        relativeY: y1 / bh,
-                        widthPx: x2 - x1,
-                        heightPx: y2 - y1,
-                        options,
-                        drawStartTime: scene.draw ? scene.start : undefined,
-                        drawDuration: Math.max(0.3, ((x2 - x1) / 100) * SECONDS_PER_100PX),
-                    });
-                } else if (scene.draw) {
-                    const idx = hMap.get(key)!;
-                    if (extracted[idx].drawStartTime === undefined) {
-                        extracted[idx].drawStartTime = scene.start;
+                // bboxes 배열 필수 순회
+                const boxes = target.bboxes;
+
+                let accumulatedDrawDelay = 0;
+
+                boxes.forEach((box) => {
+                    const { x1, y1, x2, y2 } = box;
+                    const key = `${target.type}:${x1},${y1},${x2},${y2}`;
+
+                    const drawDuration = Math.max(0.3, ((x2 - x1) / 100) * SECONDS_PER_100PX);
+                    const drawStartTime = scene.draw ? scene.start + accumulatedDrawDelay : undefined;
+
+                    if (!hMap.has(key)) {
+                        hMap.set(key, extracted.length);
+                        extracted.push({
+                            type: target.type as 'circle' | 'pen',
+                            relativeX: x1 / bw,
+                            relativeY: y1 / bh,
+                            widthPx: x2 - x1,
+                            heightPx: y2 - y1,
+                            options,
+                            drawStartTime,
+                            drawDuration,
+                        });
+                    } else if (scene.draw) {
+                        const idx = hMap.get(key)!;
+                        if (extracted[idx].drawStartTime === undefined) {
+                            extracted[idx].drawStartTime = drawStartTime;
+                        }
                     }
-                }
+                    // 다음 줄은 이전 줄이 그려진 시간만큼 뒤에 시작되도록 지연 시간 누적
+                    accumulatedDrawDelay += drawDuration;
+                });
             }
         });
 
@@ -82,14 +97,38 @@ export function buildHighlightsFromScenes(
 /**
  * scenes 배열을 CameraKeyframe 배열로 변환합니다.
  * scenes가 없으면 기존 cameraTimeline을 그대로 반환합니다.
+ *
+ * viewportWidth / viewportHeight를 받아 object-fit: contain 축소 비율을 보정합니다.
+ * scaleMode에 따라 scale 해석이 달라집니다:
+ *   'fixed': scale = 이미지 원본 가로 대비 고정 배율 (100=화면에 딱 맞음, 120=1.2배 확대)
+ *            같은 scale이면 줌 변화 없이 카메라 팬만 발생
+ *   'target' (기본): circle/pen/thumbnail에서 타겟이 화면 가로의 scale%를 차지하도록 자동 줌 계산
  */
 export function buildCameraTimeline(
     scenes: TimelineScene[] | undefined,
     cameraTimeline: CameraKeyframe[],
     baseWidth: number,
     baseHeight: number,
+    viewportWidth?: number,
+    viewportHeight?: number,
+    scaleMode: 'fixed' | 'target' = 'target',
 ): CameraKeyframe[] {
     if (!scenes || scenes.length === 0) return cameraTimeline;
+
+    // contain 보정 비율 계산: 이미지가 뷰포트에 contain으로 렌더링될 때
+    // 실제 렌더링 가로와 뷰포트 가로의 비율을 구한다.
+    // 이 비율이 1보다 크면 이미지 가로가 축소되었다는 뜻이므로 scale을 보정해야 한다.
+    let containCompensation = 1;
+    if (viewportWidth && viewportHeight) {
+        const imageAspect = baseWidth / baseHeight;
+        const viewportAspect = viewportWidth / viewportHeight;
+        // 세로 기준 렌더링 (이미지가 뷰포트보다 세로로 긴 경우)
+        if (viewportAspect > imageAspect) {
+            const imgRenderWidth = viewportHeight * imageAspect;
+            containCompensation = viewportWidth / imgRenderWidth;
+        }
+        // 가로 기준 렌더링이면 imgRenderWidth = viewportWidth이므로 보정 불필요 (1.0)
+    }
 
     const result: CameraKeyframe[] = [];
 
@@ -98,13 +137,50 @@ export function buildCameraTimeline(
         const bw = ('baseW' in target ? target.baseW : undefined) ?? baseWidth;
         const bh = ('baseH' in target ? target.baseH : undefined) ?? baseHeight;
 
-        // scale을 '화면 가로비 대비 점유율(%)'로 해석 → 실제 확대 배율 계산
-        let computedScale = scene.scale / 100;
-        if (target.type === 'thumbnail' || target.type === 'circle' || target.type === 'pen') {
-            const targetWidth = Math.abs(target.x2 - target.x1);
-            if (targetWidth > 0) {
-                computedScale = (scene.scale / 100) * (bw / targetWidth);
+        // 기본 배율: contain 보정 포함한 고정 배율
+        // scale:100 = 이미지 원본 가로가 화면 가로에 정확히 맞는 크기
+        let computedScale = (scene.scale / 100) * containCompensation;
+        let centerXRatio = 0.5;
+        let centerYRatio = 0.5;
+
+        if (target.type === 'circle' || target.type === 'pen') {
+            const boxes = target.bboxes;
+
+            // 메가 바운딩 박스 → 카메라가 바라볼 중심점 계산
+            const minX = Math.min(...boxes.map(b => b.x1));
+            const maxX = Math.max(...boxes.map(b => b.x2));
+            const minY = Math.min(...boxes.map(b => b.y1));
+            const maxY = Math.max(...boxes.map(b => b.y2));
+
+            // target 모드: 타겟이 화면 가로의 scale%를 차지하도록 추가 배율 적용
+            if (scaleMode === 'target') {
+                const targetWidth = Math.abs(maxX - minX);
+                if (targetWidth > 0) {
+                    computedScale = (scene.scale / 100) * containCompensation * (bw / targetWidth);
+                }
             }
+            // fixed 모드: computedScale 그대로 (고정 배율)
+
+            centerXRatio = (minX + maxX) / 2 / bw;
+            centerYRatio = (minY + maxY) / 2 / bh;
+        } else if (target.type === 'thumbnail') {
+            // target 모드: 썸네일이 화면 가로의 scale%를 차지하도록 추가 배율 적용
+            if (scaleMode === 'target') {
+                const targetWidth = Math.abs(target.x2 - target.x1);
+                if (targetWidth > 0) {
+                    computedScale = (scene.scale / 100) * containCompensation * (bw / targetWidth);
+                }
+            }
+            // fixed 모드: computedScale 그대로 (고정 배율)
+
+            centerXRatio = (target.x1 + target.x2) / 2 / bw;
+            centerYRatio = (target.y1 + target.y2) / 2 / bh;
+        }
+
+        // 카메라 중심점 보정: centerOffset이 있으면 계산된 중심에 오프셋 적용
+        if (scene.centerOffset) {
+            centerXRatio += (scene.centerOffset.x ?? 0);
+            centerYRatio += (scene.centerOffset.y ?? 0);
         }
 
         const baseKf = {
@@ -116,8 +192,6 @@ export function buildCameraTimeline(
 
         let kf: CameraKeyframe;
         if (target.type === 'thumbnail' || target.type === 'circle' || target.type === 'pen') {
-            const centerXRatio = (target.x1 + target.x2) / 2 / bw;
-            const centerYRatio = (target.y1 + target.y2) / 2 / bh;
             kf = { ...baseKf, targetCoords: { x: centerXRatio, y: centerYRatio } };
         } else if (target.type === 'center') {
             kf = { ...baseKf, targetCoords: 'center' };

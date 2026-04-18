@@ -1,0 +1,640 @@
+{
+  "block_id": "anc_leader",
+  "title": "Bose Leads ANC",
+  "narration": "Active noise cancellation generated the most data: 349 mentions across all three products. The Bose QuietComfort Ultra leads at 68.9% positive from 103 mentions. One reviewer described listening to music while running a vacuum cleaner — a first for them. Samsung's Galaxy Buds 3 Pro sits mid-range at 54.2% positive from 107 mentions. One buyer praised the silence on a plane, calling the engine noise a dull whisper. The pattern: both handle steady, low-frequency drone effectively.",
+  "evidence_quotes": [
+    {
+      "product_id": "product_a",
+      "review_id": "R3IT27O3GPL7DZ",
+      "highlight_phrase": "music while running my vacuum cleaner",
+      "star_rating": 5,
+      "is_humorous": false,
+      "selection_reason": "anchor",
+      "review_date": "2026-01-05",
+      "helpful_count": 10,
+      "has_media": false,
+      "highlight_bboxes": [
+        {
+          "x1": 416,
+          "y1": 170,
+          "x2": 670,
+          "y2": 188
+        }
+      ],
+      "thumbnail_bboxes": []
+    },
+    {
+      "product_id": "product_b",
+      "review_id": "R2ZQDGZNANWV1J",
+      "highlight_phrase": "silenced the jet noise to a dull whisper",
+      "star_rating": 5,
+      "is_humorous": false,
+      "selection_reason": "supplementary",
+      "review_date": "2025-05-18",
+      "helpful_count": 84,
+      "has_media": false,
+      "highlight_bboxes": [
+        {
+          "x1": 908,
+          "y1": 646,
+          "x2": 1004,
+          "y2": 664
+        },
+        {
+          "x1": 40,
+          "y1": 666,
+          "x2": 183,
+          "y2": 684
+        }
+      ],
+      "thumbnail_bboxes": []
+    }
+  ],
+  "narration_audio": {
+    "path": "narration_audio/anc_leader.wav",
+    "actual_duration_sec": 42.651,
+    "format": "wav"
+  },
+  "duration_sec": 43.151,
+  "absolute_start_sec": 265.697,
+  "absolute_end_sec": 308.848,
+  "headline": "Noise Cancellation: The Gap",
+  "word_timestamps": [
+    {
+      "word": "Active",
+      "time_start": 0.32,
+      "time_end": 0.56,
+      "text_start": 0,
+      "text_end": 6
+    },
+    {
+      "word": "noise",
+      "time_start": 0.56,
+      "time_end": 0.86,
+      "text_start": 7,
+      "text_end": 12
+    },
+    {
+      "word": "cancellation",
+      "time_start": 0.86,
+      "time_end": 1.42,
+      "text_start": 13,
+      "text_end": 25
+    },
+    {
+      "word": "generated",
+      "time_start": 1.42,
+      "time_end": 2.32,
+      "text_start": 26,
+      "text_end": 35
+    },
+    {
+      "word": "the",
+      "time_start": 2.32,
+      "time_end": 2.74,
+      "text_start": 36,
+      "text_end": 39
+    },
+    {
+      "word": "most",
+      "time_start": 2.74,
+      "time_end": 3.12,
+      "text_start": 40,
+      "text_end": 44
+    },
+    {
+      "word": "data:",
+      "time_start": 4.28,
+      "time_end": 5.18,
+      "text_start": 45,
+      "text_end": 50
+    },
+    {
+      "word": "349",
+      "time_start": 5.18,
+      "time_end": 5.26,
+      "text_start": 51,
+      "text_end": 54
+    },
+    {
+      "word": "mentions",
+      "time_start": 5.26,
+      "time_end": 6.12,
+      "text_start": 55,
+      "text_end": 63
+    },
+    {
+      "word": "across",
+      "time_start": 6.12,
+      "time_end": 6.48,
+      "text_start": 64,
+      "text_end": 70
+    },
+    {
+      "word": "all",
+      "time_start": 6.54,
+      "time_end": 7.06,
+      "text_start": 71,
+      "text_end": 74
+    },
+    {
+      "word": "three",
+      "time_start": 7.06,
+      "time_end": 7.34,
+      "text_start": 75,
+      "text_end": 80
+    },
+    {
+      "word": "products.",
+      "time_start": 7.34,
+      "time_end": 7.48,
+      "text_start": 81,
+      "text_end": 90
+    },
+    {
+      "word": "The",
+      "time_start": 8.68,
+      "time_end": 8.68,
+      "text_start": 91,
+      "text_end": 94
+    },
+    {
+      "word": "Bose",
+      "time_start": 8.68,
+      "time_end": 9.04,
+      "text_start": 95,
+      "text_end": 99
+    },
+    {
+      "word": "QuietComfort",
+      "time_start": 9.04,
+      "time_end": 10.04,
+      "text_start": 100,
+      "text_end": 112
+    },
+    {
+      "word": "Ultra",
+      "time_start": 10.26,
+      "time_end": 10.36,
+      "text_start": 113,
+      "text_end": 118
+    },
+    {
+      "word": "leads",
+      "time_start": 10.36,
+      "time_end": 10.98,
+      "text_start": 119,
+      "text_end": 124
+    },
+    {
+      "word": "at",
+      "time_start": 10.98,
+      "time_end": 11.36,
+      "text_start": 125,
+      "text_end": 127
+    },
+    {
+      "word": "68.9%",
+      "time_start": 11.42,
+      "time_end": 13.02,
+      "text_start": 128,
+      "text_end": 133
+    },
+    {
+      "word": "positive",
+      "time_start": 13.02,
+      "time_end": 13.64,
+      "text_start": 134,
+      "text_end": 142
+    },
+    {
+      "word": "from",
+      "time_start": 13.64,
+      "time_end": 14.08,
+      "text_start": 143,
+      "text_end": 147
+    },
+    {
+      "word": "103",
+      "time_start": 14.08,
+      "time_end": 14.54,
+      "text_start": 148,
+      "text_end": 151
+    },
+    {
+      "word": "mentions.",
+      "time_start": 14.54,
+      "time_end": 15.44,
+      "text_start": 152,
+      "text_end": 161
+    },
+    {
+      "word": "One",
+      "time_start": 16.52,
+      "time_end": 16.64,
+      "text_start": 162,
+      "text_end": 165
+    },
+    {
+      "word": "reviewer",
+      "time_start": 16.64,
+      "time_end": 16.96,
+      "text_start": 166,
+      "text_end": 174
+    },
+    {
+      "word": "described",
+      "time_start": 16.96,
+      "time_end": 17.46,
+      "text_start": 175,
+      "text_end": 184
+    },
+    {
+      "word": "listening",
+      "time_start": 17.46,
+      "time_end": 17.88,
+      "text_start": 185,
+      "text_end": 194
+    },
+    {
+      "word": "to",
+      "time_start": 17.88,
+      "time_end": 18.14,
+      "text_start": 195,
+      "text_end": 197
+    },
+    {
+      "word": "music",
+      "time_start": 18.16,
+      "time_end": 18.48,
+      "text_start": 198,
+      "text_end": 203
+    },
+    {
+      "word": "while",
+      "time_start": 18.48,
+      "time_end": 18.8,
+      "text_start": 204,
+      "text_end": 209
+    },
+    {
+      "word": "running",
+      "time_start": 18.8,
+      "time_end": 19.16,
+      "text_start": 210,
+      "text_end": 217
+    },
+    {
+      "word": "a",
+      "time_start": 19.16,
+      "time_end": 19.34,
+      "text_start": 218,
+      "text_end": 219
+    },
+    {
+      "word": "vacuum",
+      "time_start": 19.34,
+      "time_end": 19.74,
+      "text_start": 220,
+      "text_end": 226
+    },
+    {
+      "word": "cleaner",
+      "time_start": 19.78,
+      "time_end": 20.06,
+      "text_start": 227,
+      "text_end": 234
+    },
+    {
+      "word": "—",
+      "time_start": 20.06,
+      "time_end": 20.56,
+      "text_start": 235,
+      "text_end": 236
+    },
+    {
+      "word": "a",
+      "time_start": 20.6,
+      "time_end": 20.7,
+      "text_start": 237,
+      "text_end": 238
+    },
+    {
+      "word": "first",
+      "time_start": 20.7,
+      "time_end": 21.0,
+      "text_start": 239,
+      "text_end": 244
+    },
+    {
+      "word": "for",
+      "time_start": 21.0,
+      "time_end": 21.3,
+      "text_start": 245,
+      "text_end": 248
+    },
+    {
+      "word": "them.",
+      "time_start": 21.3,
+      "time_end": 22.05,
+      "text_start": 249,
+      "text_end": 254
+    },
+    {
+      "word": "Samsung's",
+      "time_start": 22.96,
+      "time_end": 23.26,
+      "text_start": 255,
+      "text_end": 264
+    },
+    {
+      "word": "Galaxy",
+      "time_start": 23.26,
+      "time_end": 23.6,
+      "text_start": 265,
+      "text_end": 271
+    },
+    {
+      "word": "Buds",
+      "time_start": 23.6,
+      "time_end": 24.18,
+      "text_start": 272,
+      "text_end": 276
+    },
+    {
+      "word": "3",
+      "time_start": 24.34,
+      "time_end": 24.44,
+      "text_start": 277,
+      "text_end": 278
+    },
+    {
+      "word": "Pro",
+      "time_start": 24.44,
+      "time_end": 24.86,
+      "text_start": 279,
+      "text_end": 282
+    },
+    {
+      "word": "sits",
+      "time_start": 24.86,
+      "time_end": 25.22,
+      "text_start": 283,
+      "text_end": 287
+    },
+    {
+      "word": "mid-range",
+      "time_start": 25.22,
+      "time_end": 25.98,
+      "text_start": 288,
+      "text_end": 297
+    },
+    {
+      "word": "at",
+      "time_start": 25.98,
+      "time_end": 26.26,
+      "text_start": 298,
+      "text_end": 300
+    },
+    {
+      "word": "54.2%",
+      "time_start": 26.26,
+      "time_end": 27.8,
+      "text_start": 301,
+      "text_end": 306
+    },
+    {
+      "word": "positive",
+      "time_start": 28.1,
+      "time_end": 28.38,
+      "text_start": 307,
+      "text_end": 315
+    },
+    {
+      "word": "from",
+      "time_start": 28.76,
+      "time_end": 28.86,
+      "text_start": 316,
+      "text_end": 320
+    },
+    {
+      "word": "107",
+      "time_start": 28.86,
+      "time_end": 29.4,
+      "text_start": 321,
+      "text_end": 324
+    },
+    {
+      "word": "mentions.",
+      "time_start": 29.4,
+      "time_end": 29.92,
+      "text_start": 325,
+      "text_end": 334
+    },
+    {
+      "word": "One",
+      "time_start": 31.28,
+      "time_end": 31.34,
+      "text_start": 335,
+      "text_end": 338
+    },
+    {
+      "word": "buyer",
+      "time_start": 31.34,
+      "time_end": 31.58,
+      "text_start": 339,
+      "text_end": 344
+    },
+    {
+      "word": "praised",
+      "time_start": 31.58,
+      "time_end": 32.16,
+      "text_start": 345,
+      "text_end": 352
+    },
+    {
+      "word": "the",
+      "time_start": 32.16,
+      "time_end": 32.58,
+      "text_start": 353,
+      "text_end": 356
+    },
+    {
+      "word": "silence",
+      "time_start": 32.58,
+      "time_end": 33.02,
+      "text_start": 357,
+      "text_end": 364
+    },
+    {
+      "word": "on",
+      "time_start": 33.02,
+      "time_end": 33.38,
+      "text_start": 365,
+      "text_end": 367
+    },
+    {
+      "word": "a",
+      "time_start": 33.38,
+      "time_end": 33.48,
+      "text_start": 368,
+      "text_end": 369
+    },
+    {
+      "word": "plane,",
+      "time_start": 33.48,
+      "time_end": 34.02,
+      "text_start": 370,
+      "text_end": 376
+    },
+    {
+      "word": "calling",
+      "time_start": 34.48,
+      "time_end": 34.6,
+      "text_start": 377,
+      "text_end": 384
+    },
+    {
+      "word": "the",
+      "time_start": 34.6,
+      "time_end": 34.76,
+      "text_start": 385,
+      "text_end": 388
+    },
+    {
+      "word": "engine",
+      "time_start": 34.76,
+      "time_end": 35.02,
+      "text_start": 389,
+      "text_end": 395
+    },
+    {
+      "word": "noise",
+      "time_start": 35.02,
+      "time_end": 35.4,
+      "text_start": 396,
+      "text_end": 401
+    },
+    {
+      "word": "a",
+      "time_start": 35.4,
+      "time_end": 35.72,
+      "text_start": 402,
+      "text_end": 403
+    },
+    {
+      "word": "dull",
+      "time_start": 35.88,
+      "time_end": 36.0,
+      "text_start": 404,
+      "text_end": 408
+    },
+    {
+      "word": "whisper.",
+      "time_start": 36.0,
+      "time_end": 36.65,
+      "text_start": 409,
+      "text_end": 417
+    },
+    {
+      "word": "The",
+      "time_start": 37.42,
+      "time_end": 37.5,
+      "text_start": 418,
+      "text_end": 421
+    },
+    {
+      "word": "pattern:",
+      "time_start": 37.5,
+      "time_end": 38.1,
+      "text_start": 422,
+      "text_end": 430
+    },
+    {
+      "word": "both",
+      "time_start": 38.7,
+      "time_end": 38.82,
+      "text_start": 431,
+      "text_end": 435
+    },
+    {
+      "word": "handle",
+      "time_start": 38.82,
+      "time_end": 39.1,
+      "text_start": 436,
+      "text_end": 442
+    },
+    {
+      "word": "steady,",
+      "time_start": 39.1,
+      "time_end": 39.8,
+      "text_start": 443,
+      "text_end": 450
+    },
+    {
+      "word": "low-frequency",
+      "time_start": 40.08,
+      "time_end": 40.66,
+      "text_start": 451,
+      "text_end": 464
+    },
+    {
+      "word": "drone",
+      "time_start": 40.68,
+      "time_end": 41.18,
+      "text_start": 465,
+      "text_end": 470
+    },
+    {
+      "word": "effectively.",
+      "time_start": 41.18,
+      "time_end": 41.86,
+      "text_start": 471,
+      "text_end": 483
+    }
+  ],
+  "visualization_data": {
+    "data_type": "theme_ranking",
+    "theme_name": "Active Noise Cancellation",
+    "chart_data": [
+      {
+        "rank": 1,
+        "product_id": "product_a",
+        "product_name": "Bose QuietComfort Ultra Earbuds (2nd Gen)",
+        "mention_count": 103,
+        "positive_count": 71,
+        "negative_count": 28,
+        "positive_ratio": 0.689,
+        "insight_level": "full"
+      },
+      {
+        "rank": 2,
+        "product_id": "product_b",
+        "product_name": "Samsung Galaxy Buds 3 Pro",
+        "mention_count": 107,
+        "positive_count": 58,
+        "negative_count": 43,
+        "positive_ratio": 0.542,
+        "insight_level": "rank_only"
+      },
+      {
+        "rank": 3,
+        "product_id": "product_c",
+        "product_name": "Beats Powerbeats Pro 2",
+        "mention_count": 139,
+        "positive_count": 37,
+        "negative_count": 92,
+        "positive_ratio": 0.266,
+        "insight_level": "full"
+      }
+    ]
+  },
+  "scene_type": "theme_comparison",
+  "review_card_data": {
+    "image_path": "D:\\GEMINI\\data\\review_cards\\card_combined_anc_leader.png",
+    "size": {
+      "width": 1920,
+      "height": 1012
+    }
+  }
+}

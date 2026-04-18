@@ -1,5 +1,5 @@
 /**
- * CircleOnCard 오케스트레이터 컴포넌트
+ * ThemeComparison 오케스트레이터 컴포넌트
  * sequences[] 배열을 순회하며 각 카메라 워킹 시퀀스를 Remotion <Sequence>로 순차 배치합니다.
  * 타입 정의는 types.ts, 변환 로직은 sceneHelpers.ts에 위치합니다.
  */
@@ -14,7 +14,6 @@ import {
 } from 'remotion';
 import { NoiseOverlay } from './NoiseOverlay';
 import { CameraKeyframe } from './CameraLayer';
-import { CircleAnimationOptions } from './CircleOverlay';
 import { CameraWalkingSequence } from './CameraWalkingSequence';
 import {
     HighlightConfig,
@@ -59,7 +58,7 @@ const DEFAULT_CAMERA_TIMELINE: CameraKeyframe[] = [
 // 오케스트레이터 컴포넌트
 // ==========================================
 
-export const CircleOnCard: React.FC<DataDrivenTemplateProps> = (props) => {
+export const ThemeComparison: React.FC<DataDrivenTemplateProps> = (props) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
@@ -69,10 +68,12 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = (props) => {
             return props.sequences as CameraWalkingSequenceConfig[];
         }
         return [{
-            imageSrc: (props.imageSrc as string) ?? staticFile(DEFAULT_IMAGE),
+            images: [{
+                src: staticFile(DEFAULT_IMAGE),
+                height: 410
+            }],
             imageAspectRatio: props.imageAspectRatio as number | undefined,
             baseWidth: props.baseWidth as number | undefined,
-            baseHeight: props.baseHeight as number | undefined,
             scenes: props.scenes as TimelineScene[] | undefined,
             highlights: (props.highlights as HighlightConfig[] | undefined) ?? DEFAULT_HIGHLIGHTS,
             cameraTimeline: (props.cameraTimeline as CameraKeyframe[] | undefined) ?? DEFAULT_CAMERA_TIMELINE,
@@ -93,34 +94,33 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = (props) => {
                 offsetSeconds: start
             };
         }),
-    [sequences, fps]);
+        [sequences, fps]);
 
     // 전역 노이즈 부스트: 현재 활성 시퀀스의 카메라 이동 상태를 기반으로 계산
     const globalNoiseBoost = useMemo(() => {
         let activeIndex = 0;
-        let localFrame = frame;
         for (let i = 0; i < sequenceTimeline.length; i++) {
             const { from, duration } = sequenceTimeline[i];
             if (frame >= from && frame < from + duration) {
                 activeIndex = i;
-                localFrame = frame - from;
                 break;
             }
             if (i === sequenceTimeline.length - 1) {
                 activeIndex = i;
-                localFrame = frame - from;
             }
         }
 
         const activeSeq = sequences[activeIndex];
-        const localSec = Math.max(0, localFrame) / (fps || 30);
+        const globalSec = Math.max(0, frame) / (fps || 30);
         const bw = activeSeq.baseWidth ?? 1024;
-        const bh = activeSeq.baseHeight ?? 410;
+        const bh = activeSeq.images && activeSeq.images.length > 0
+            ? activeSeq.images.reduce((acc, img) => acc + img.height, 0)
+            : 410; // Fallback
 
         const timeline = buildCameraTimeline(
             activeSeq.scenes, activeSeq.cameraTimeline ?? [], bw, bh,
         );
-        return computeNoiseBoost(timeline, localSec, activeSeq.noisePeakRatio ?? 0.6);
+        return computeNoiseBoost(timeline, globalSec, activeSeq.noisePeakRatio ?? 0.6);
     }, [frame, fps, sequences, sequenceTimeline]);
 
     return (
@@ -134,10 +134,9 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = (props) => {
                     name={`CameraWalk-${i}`}
                 >
                     <CameraWalkingSequence
-                        imageSrc={seq.imageSrc}
+                        images={seq.images}
                         imageAspectRatio={seq.imageAspectRatio}
                         baseWidth={seq.baseWidth}
-                        baseHeight={seq.baseHeight}
                         scenes={seq.scenes}
                         highlights={seq.highlights}
                         cameraTimeline={seq.cameraTimeline}
@@ -146,6 +145,7 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = (props) => {
                         parallaxFactor={seq.parallaxFactor}
                         backgroundSrc={seq.backgroundSrc}
                         offsetSeconds={sequenceTimeline[i].offsetSeconds}
+                        scaleMode={seq.scaleMode}
                     />
                 </Sequence>
             ))}
@@ -172,7 +172,7 @@ export const CircleOnCard: React.FC<DataDrivenTemplateProps> = (props) => {
 // 동적 duration 계산 (멀티 시퀀스 지원)
 // ==========================================
 
-export const calculateCircleOnCardMetadata: CalculateMetadataFunction<DataDrivenTemplateProps> = ({
+export const calculateThemeComparisonMetadata: CalculateMetadataFunction<DataDrivenTemplateProps> = ({
     props,
     defaultProps,
 }) => {
@@ -200,7 +200,7 @@ export const calculateCircleOnCardMetadata: CalculateMetadataFunction<DataDriven
         }
         return { durationInFrames: duration };
     } catch (e) {
-        console.error("Error in calculateCircleOnCardMetadata:", e);
+        console.error("Error in calculateThemeComparisonMetadata:", e);
         return { durationInFrames: 300 };
     }
 };
