@@ -15,9 +15,9 @@
                 "reviews/photos/R3H00X608H1RFF_0.jpg",
                 "reviews/photos/R3H00X608H1RFF_1.jpg"
             ],
-            "highlight_phrase": "stayed securely in place the entire time",
-            "start": 1.0,
-            "duration": 5.0
+            "highlight_thumbnail": [
+                "reviews/photos/R3H00X608H1RFF_1.jpg"
+            ]
         },
         {
             "review_id": "R2PM39QZK9FLE3",
@@ -32,8 +32,6 @@
             "helpful_text": "4 people found this helpful",
             "images": [],
             "highlight_phrase": "not talk,eat, or move your head",
-            "start": 7.0,
-            "duration": 3.0
         },
         {
             "review_id": "R3H00X608H1RFF",
@@ -48,8 +46,6 @@
             "helpful_text": "2 people found this helpful",
             "images": [],
             "highlight_phrase": "stayed securely in place the entire time",
-            "start": 11.0,
-            "duration": 3.0
         },
         {
             "review_id": "R1TTI0SENLREW6",
@@ -64,8 +60,6 @@
             "helpful_text": "49 people found this helpful",
             "images": [],
             "highlight_phrase": "sweat in these they constantly rotate",
-            "start": 11.0,
-            "duration": 3.0
         }
     ]
 }

@@ -2,37 +2,14 @@ import React, { useMemo } from 'react';
 import rough from 'roughjs';
 import { Easing, interpolate } from 'remotion';
 
-/**
- * 동그라미(하이라이트)의 시각적 스타일과 애니메이션 방향을 제어하는 옵션들입니다.
- */
-export interface CircleAnimationOptions {
-    stroke?: string;         // 선의 색상
-    strokeWidth?: number;    // 선의 두께
-    roughness?: number;      // 선의 거칠기
-    bowing?: number;         // 선이 휘어지는 정도
-    opacity?: number;        // 선의 불투명도
-    mixBlendMode?: React.CSSProperties['mixBlendMode']; // 배경과의 혼합 방식 (multiply 등)
-
-    // 고급 제어 옵션
-    rotation?: number;       // 시작 위치 회전 (도 단위)
-    isClockwise?: boolean;   // 그리기 방향 (기본값: true)
-
-    // 크기 제어 옵션 (학습포인트: 텍스트 박스 대비 배율)
-    widthScale?: number;     // 가로 폭 배율 (기본값: 1.05)
-    heightScale?: number;    // 세로 폭 배율 (기본값: 1.8)
-
-    // 구간 제어 옵션 (학습포인트: 0 ~ 1.0 비율)
-    startPoint?: number;     // 전체 경로 중 그리기 시작할 지점 (0이면 처음)
-    endPoint?: number;       // 전체 경로 중 그리기가 끝날 지점 (1이면 끝)
-}
-
+import { DrawingAnimationOptions } from './types';
 interface CircleOverlayProps {
     centerX: number;        // 화면 상의 중심 X 좌표 (픽셀)
     centerY: number;        // 화면 상의 중심 Y 좌표 (픽셀)
     width: number;          // 타원의 가로 폭 (픽셀)
     height: number;         // 타원의 세로 폭 (픽셀)
     drawProgress: number;   // 그리기 진행률 (0: 시작 안 함, 1: 완료)
-    options?: CircleAnimationOptions; // 상세 스타일 옵션
+    options?: DrawingAnimationOptions; // 상세 스타일 옵션
 }
 
 export const CircleOverlay: React.FC<CircleOverlayProps> = ({

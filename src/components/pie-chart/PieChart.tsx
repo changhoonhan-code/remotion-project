@@ -1,21 +1,8 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { interpolate, useCurrentFrame, Easing } from "remotion";
-
-/**
- * 차트 슬라이스 한 조각의 상세 데이터를 정의합니다.
- */
-interface ChartSlice {
-  label: string;
-  value: number; // 0 ~ 100 사이의 퍼센트
-  color: string; // 현재 사용되지 않지만 데이터 스키마상 유지
-  patternImage: string; // (필수) 배경 이미지 패턴 경로
-  durationFrames: number; // (추가) 이 조각이 그려지는 데 할당할 프레임 수
-}
-
-interface PieChartProps {
-  data: ChartSlice[];
-  size: number;
-}
+import { PieChartProps } from "./types";
+import { describeArc } from "./utils/math";
+import { useChartSlices } from "./hooks/useChartSlices";
 
 /**
  * [원형 차트 컴포넌트]
@@ -27,63 +14,8 @@ export const PieChart: React.FC<PieChartProps> = ({ data, size }) => {
   const center = size / 2;
   const radius = center * 0.85; // 다소 여유 있게 배치
 
-  // 각 조각의 시작 각도와 종료 각도, 그리고 개별 애니메이션 타이밍 프레임을 계산하여 메모이제이션합니다.
-  const slices = useMemo(() => {
-    const startAngle = -Math.PI / 2; // 상단(12시 방향)에서 무조건 동시 시작
-
-    // 배열의 역순으로(가장 상단에 올 작은 조각부터) 값을 누적합 합니다.
-    // 첫번째 조각(가장 큰 조각)은 가장 아래에 깔리며, 누적값이 100이 되어 완전한 원이 됩니다.
-    let accumulatedValue = 0;
-    const evaluatedSlices = [...data].reverse().map((d) => {
-      accumulatedValue += d.value;
-      return {
-        ...d,
-        targetValue: accumulatedValue // 이 조각이 그려야 할 12시 기준 목표 퍼센트
-      };
-    }).reverse();
-
-    return evaluatedSlices.map((d) => {
-      const endAngle = startAngle + (d.targetValue / 100) * 2 * Math.PI;
-      
-      // 모든 조각이 동시에 그려지기 시작하도록 startFrame을 0으로 고정합니다.
-      const startFrame = 0;
-      const endFrame = d.durationFrames; // 프레임 단위입니다. (Root.tsx에서 30이었던 값이 2, 3 등으로 입력된 경우 매우 빠름)
-
-      return { ...d, start: startAngle, end: endAngle, startFrame, endFrame };
-    });
-  }, [data]);
-
-  /**
-   * 폴라 좌표(각도, 반지름)를 데카르트 좌표(x, y)로 환산하는 헬퍼 함수
-   */
-  const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInRadians: number) => {
-    return {
-      x: centerX + radius * Math.cos(angleInRadians),
-      y: centerY + radius * Math.sin(angleInRadians),
-    };
-  };
-
-  /**
-   * SVG Path의 'd' 속성을 생성하는 함수 부채꼴 모양을 만듭니다.
-   */
-  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
-    // [중요 버그 수정]: 완전한 360도 원(Math.PI * 2)을 그릴 때 시작점과 끝점이 같아져 SVG Path가 사라지는 이슈 방지
-    let effectiveEndAngle = endAngle;
-    if (endAngle - startAngle >= Math.PI * 2) {
-      effectiveEndAngle = startAngle + Math.PI * 2 - 0.0001;
-    }
-
-    const start = polarToCartesian(x, y, radius, effectiveEndAngle);
-    const end = polarToCartesian(x, y, radius, startAngle);
-    const largeArcFlag = effectiveEndAngle - startAngle <= Math.PI ? "0" : "1";
-
-    return [
-      "M", x, y,
-      "L", start.x, start.y,
-      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
-      "Z",
-    ].join(" ");
-  };
+  // 핵심 계산 로직은 커스텀 훅으로 위임
+  const slices = useChartSlices(data);
 
   return (
     <div style={{ width: size, height: size, position: 'relative', mixBlendMode: 'multiply' }}>

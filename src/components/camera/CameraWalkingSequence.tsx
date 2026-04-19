@@ -7,15 +7,16 @@ import {
     Img,
     staticFile,
 } from 'remotion';
-import { CameraLayer, CameraKeyframe } from './camera/layers/CameraLayer';
-import { CircleOverlay, CircleAnimationOptions } from './camera/overlays/CircleOverlay';
-import { PenHighlight } from './camera/overlays/PenHighlight';
-import { BackgroundLayer } from './camera/layers/BackgroundLayer';
-import { MotionBlurLayer } from './camera/layers/MotionBlurLayer';
-import { useCameraTargets } from './camera/hooks/useCameraTargets';
-import { useCameraState } from './camera/hooks/useCameraState';
+import { CameraLayer, CameraKeyframe } from './layers/CameraLayer';
+import { CircleOverlay } from '../effects/CircleOverlay';
+import { PenHighlight } from '../effects/PenHighlight';
+import { BackgroundLayer } from './layers/BackgroundLayer';
+import { MotionBlurLayer } from './layers/MotionBlurLayer';
+import { useCameraTargets } from './hooks/useCameraTargets';
+import { useCameraState } from './hooks/useCameraState';
 import { HighlightConfig, TimelineScene, StripImage } from './types';
-import { buildHighlightsFromScenes, buildCameraTimeline } from './sceneHelpers';
+import { DrawingAnimationOptions } from '../effects/types';
+import { buildHighlightsFromScenes, buildCameraTimeline } from './utils/timeline';
 
 /**
  * CameraWalkingSequence에 주입되는 Props입니다.
@@ -28,7 +29,7 @@ interface CameraWalkingSequenceProps {
     scenes?: TimelineScene[];
     highlights?: HighlightConfig[];
     cameraTimeline?: CameraKeyframe[];
-    circleOptions?: CircleAnimationOptions;
+    circleOptions?: DrawingAnimationOptions;
     noisePeakRatio?: number;
     parallaxFactor?: number;
     backgroundSrc?: string;

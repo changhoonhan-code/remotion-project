@@ -1,93 +1,9 @@
 import React, { useRef, useLayoutEffect } from 'react';
-import { staticFile } from 'remotion';
 import './ReviewCard.css';
-export interface ReviewData {
-    review_id: string;
-    reviewer_name: string;
-    avatar_url?: string;
-    rating: number; // 0-5
-    title: string;
-    date_text: string;
-    variant_text?: string;
-    is_verified?: boolean;
-    body: string;
-    helpful_text?: string;
-    images?: string[]; 
-    highlight_phrase?: string;
-}
-
-interface ReviewCardProps {
-    data: ReviewData;
-    onMeasureHighlight?: (bbox: { x1: number, y1: number, x2: number, y2: number }) => void;
-}
-
-// 상대 경로인 경우 Remotion의 public 폴더 참조를 위해 staticFile로 감싸주는 헬퍼
-const getImageUrl = (url: string) => {
-    if (url.startsWith('http') || url.startsWith('data:')) {
-        return url;
-    }
-    return staticFile(url);
-};
-
-
-/**
- * 하이라이트할 문구를 찾아서 앞/중간/뒤로 쪼개는 헬퍼. 
- * 파이썬의 find_normalized 와 동일한 로직을 수행합니다.
- */
-function splitByHighlight(text: string, highlight?: string) {
-    if (!highlight) return [text];
-    
-    // 무시할 특수문자 (공백, 줄바꿈, 구두점 등)
-    const ignoreRegex = /[.,'%+\- \n\r]/;
-    const cleanSearch = highlight.split('').filter(c => !ignoreRegex.test(c)).join('').toLowerCase();
-    
-    if (!cleanSearch) return [text];
-
-    let tIdx = 0;
-    while (tIdx < text.length) {
-        if (!ignoreRegex.test(text[tIdx]) && text[tIdx].toLowerCase() === cleanSearch[0]) {
-            let tempTIdx = tIdx;
-            let sIdx = 0;
-            // 텍스트와 검색어 매칭 확인
-            while (tempTIdx < text.length && sIdx < cleanSearch.length) {
-                if (ignoreRegex.test(text[tempTIdx])) {
-                    tempTIdx++;
-                    continue;
-                }
-                if (text[tempTIdx].toLowerCase() === cleanSearch[sIdx]) {
-                    tempTIdx++;
-                    sIdx++;
-                } else {
-                    break;
-                }
-            }
-            if (sIdx === cleanSearch.length) {
-                // 정확히 찾았을 경우 분할 리턴
-                return [
-                    text.substring(0, tIdx),       // Prefix
-                    text.substring(tIdx, tempTIdx),// Highlighted
-                    text.substring(tempTIdx)       // Suffix
-                ];
-            }
-        }
-        tIdx++;
-    }
-    return [text];
-}
-
-// 아마존 꽉 찬 별 SVG
-const StarFilled = () => (
-    <svg className="star-icon" width="14" height="14" viewBox="-45 25 600 580" fill="#FF9E60" xmlns="http://www.w3.org/2000/svg">
-        <path d="M256 38.013l68.17 210.1h221.03l-178.8 129.9 68.31 210.15L256 458.11l-178.71 130.05 68.3-210.15L-33.2 248.11H187.83L256 38.01z" stroke="#FF9E60" strokeWidth="20" strokeLinejoin="round"/>
-    </svg>
-);
-
-// 아마존 빈 별 SVG
-const StarEmpty = () => (
-    <svg className="star-icon" width="14" height="14" viewBox="-45 25 600 580" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M256 38.013l68.17 210.1h221.03l-178.8 129.9 68.31 210.15L256 458.11l-178.71 130.05 68.3-210.15L-33.2 248.11H187.83L256 38.01z" stroke="#FF9E60" strokeWidth="20" strokeLinejoin="round"/>
-    </svg>
-);
+import { ReviewCardProps } from './types';
+import { getImageUrl } from './utils/imageHelpers';
+import { splitByHighlight } from './utils/textHighlight';
+import { StarFilled, StarEmpty } from './ui/Stars';
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ data, onMeasureHighlight }) => {
     const highlightRef = useRef<HTMLSpanElement>(null);

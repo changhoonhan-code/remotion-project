@@ -1,11 +1,11 @@
 import React from 'react';
 import { Composition, staticFile, AbsoluteFill, Sequence } from 'remotion';
-import { ThemeComparison } from './components/Theme';
-import { PieChart } from './components/PieChart';
+import { ThemeComparison } from './components/theme';
+import { PieChart } from './components/pie-chart/PieChart';
 import { NarratedScene } from './components/NarratedScene';
 import { spring, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 import ancLeaderData from './data/anc_leader.json';
-import { ReviewCard } from './components/ReviewCard';
+import { ReviewCard } from './components/review-card/ReviewCard';
 
 // 오디오와 자막이 포함된 하이라이트 씬 래퍼 (데이터 연동)
 const HighlightSceneWithNarration: React.FC<any> = (props) => {

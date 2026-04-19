@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { HighlightConfig } from '../../types';
+import { HighlightConfig } from '../types';
 
 interface UseCameraTargetsProps {
     width: number;

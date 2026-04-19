@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { interpolate, Easing, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { CircleAnimationOptions } from './CircleOverlay';
+import { DrawingAnimationOptions } from './types';
 
 interface PenHighlightProps {
     centerX: number;        // 화면 상의 중심 X 좌표 (픽셀)
@@ -10,7 +10,7 @@ interface PenHighlightProps {
     drawProgress: number;   // 그리기 진행률 (0: 시작 안 함, 1: 완료)
     startTime?: number;     // 긋기 시작 시간 (초)
     drawDuration?: number;  // 긋기 지속 시간 (초)
-    options?: CircleAnimationOptions;
+    options?: DrawingAnimationOptions;
 }
 
 /**
